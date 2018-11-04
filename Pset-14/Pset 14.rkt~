@@ -1,0 +1,17 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname |Pset 14|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(define-struct leaf [])
+(define-struct node [data left right])
+; A [Tree X] is one of:
+; - (make-leaf)
+; - (make-node X [Tree X] [Tree X])
+ 
+ 
+(define-struct family-member [name yob])
+; A FamilyMember is a (make-family-member String Number)
+; - where name is the family member's name
+; - and yob is their year of birth
+ 
+; An FT is a [Tree FamilyMember] and represents a family tree, with the youngest
+; family member at the root.
