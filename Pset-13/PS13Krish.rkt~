@@ -1,0 +1,334 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname PS13Krish) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp")) #f)))
+; Problem Set 9
+
+(require 2htdp/universe)
+(require 2htdp/image)
+(require neu-fall18)
+(require 2htdp/batch-io)
+
+(define songhistory [song count])
+; A SongHistory is a (make-songhistory Song Number)
+; where song is the current 
+
+
+(define-struct song [title artist length album bytestring])
+; a Song is a (make-song String String Number String String)
+; Interpretation: represents the data of a song
+; - title is the title of the song
+; - artist is the song's artist
+; - length is the song's length in seconds
+; - album is the song's album
+; - bytestring is the actual bytes of data of the song
+; Examples:
+(define SONG-1 (make-song "BankAccount" "Savage" 155 "issa" "xxx"))
+(define SONG-2 (make-song "BetterNow" "Posty" 201 "bandb" "yyy"))
+; Template:
+; song-temp : Song -> ?
+#;
+(define (song-temp s)
+  (... (song-title s) ...
+       ... (song-artist s) ...
+       ... (song-length s) ...
+       ... (song-album s) ...
+       ... (song-bytestring s) ...))
+         
+                    
+; a MusicPlayerState is one of:
+; - #false
+;   - represents that the program has started and a song has not been requested yet
+; - "requested"
+;   - when a song has been requested from the server but not yet received
+; - (make-song String String Number String String) 
+;   - when a requested song has been received from the server
+; Interpretation: the current state of a music player
+; Examples:
+(define MPSTATE-1 #false)
+(define MPSTATE-2 "requested")
+(define MPSTATE-3 (make-song "yo" "yo" 222 "o" "oo"))
+(define MPSTATE-4 SONG-1)
+(define MPSTATE-5 SONG-2)
+; Template:
+; mpstate-temp: MusicPlayerState -> ?
+#;
+(define (mpstate-temp mps)
+  (cond
+    [(boolean? mps) ...]
+    [(string? mps) ...]
+    [(song? mps) ... (song-temp mps) ...])) 
+
+
+(define-struct player [mpstate history feedback])
+; A MusicPlayer is a (make-player MusicPlayerState FeedbackString)
+; Interpretation: A music player with a current state and a feedback 
+; - where mpstate is the current state of the music player
+; - and feedback is the feedback received from the user for the last song played
+; Examples:
+(define MUSICPLAYER-1 (make-player MPSTATE-1 ""))
+(define MUSICPLAYER-2 (make-player MPSTATE-2 ""))
+(define MUSICPLAYER-3 (make-player MPSTATE-3 ""))
+(define MUSICPLAYER-4 (make-player MPSTATE-4 "dislike"))
+(define MUSICPLAYER-5 (make-player MPSTATE-5 "like"))
+; Template:
+; musicplayer-temp: MusicPlayer -> ?
+#;
+(define (musicplayer-temp mp)
+  (... (mpstate-temp (player-mpstate mp)) ... (player-feedback mp)))
+
+
+
+
+; A FeedbackString is one of:
+; - ""
+; - "dislike"
+; - "like"
+; - "none"
+; Interpretation: The feedback that the user gave to the last song played.  The string
+; "none" represents that the user gave no feedback, and the string "" represents
+; that no feedback has been received yet (i.e., we are playing the first song).
+
+(define FEEDBACKSTRING-EMPTY "")
+(define FEEDBACKSTRING-DISLIKE "dislike")
+(define FEEDBACKSTRING-LIKE "like")
+(define FEEDBACKSTRING-NONE "none")
+; Template:
+; feedbackstring-temp : FeedbackString -> ?
+#;
+(define (feedbackstring-temp fs)
+  (cond
+    [(string=? fs FEEDBACKSTRING-EMPTY) ...]
+    [(string=? fs FEEDBACKSTRING-DISLIKE) ...]
+    [(string=? fs FEEDBACKSTRING-LIKE) ...]
+    [(string=? fs FEEDBACKSTRING-NONE) ...]))
+
+ 
+; A Package is a (make-package MusicPlayer ClientMsg)
+; - and dictacts the next state of the world as well as
+; - the message sent from the client to the server
+(define PACKAGE-1 (make-package MUSICPLAYER-1 "next"))
+(define PACKAGE-2 (make-package MUSICPLAYER-2 "next"))
+
+
+; A ClientMsg is "next"
+; and represents a request for the next song
+(define CLIENTMSG "next")
+
+; A Metadata is a (list String String Number String)
+; Interpretation: the data pertaining to a song
+; - where the first String is the song's title
+; - the second String is the song's artist
+; - the Number is the length of the song (in seconds)
+; - and the third String is the song's album
+; Examples
+(define METADATA-1 (list "BankAccount" "Savage" 155 "issa"))
+(define METADATA-2 (list "BetterNow" "Posty" 201 "bandb"))
+; Template:
+; metadata-temp: Metadata -> ?
+#;
+(define (metadata-temp md)
+  [(empty? md) ...]
+  [(cons? md)
+   ... (first md) ... (second md) ... (third md) ... (fourth md) ...])
+
+
+; A SongMsg is a (list "SONG" Metadata String)
+; - where the metadata is information about the given song
+; - and the second the String is the actual byte-string of music
+; Interpretation: The given song from the server, including its Metadata and bytes
+(define SONGMSG-1 (list "SONG" METADATA-1 "xxx"))
+(define SONGMSG-2 (list "SONG" METADATA-2 "yyy"))
+
+
+; An ErrorMsg is a (list "ERROR" String)
+; where the second string is the message from the server about what went wrong
+; Examples:
+(define ERRORMSG-1 (list "ERROR" "server too busy"))
+(define ERRORMSG-2 (list "ERROR" "a song cannot be found"))
+
+
+; A ServerMsg is one of:
+; - ErrorMsg
+; - SongMsg
+; Interpretation: the response received from the server
+; Examples:
+(define SERVERMSG-1 ERRORMSG-1)
+(define SERVERMSG-2 ERRORMSG-2)
+(define SERVERMSG-3 SONGMSG-1)
+(define SERVERMSG-4 SONGMSG-2)
+; Template
+; servermsg-temp: ServerMsg -> ?
+#;
+(define (servermsg-temp sm)
+  (cond
+    [(string=? (first sm) "ERROR") ...]
+    [(string=? (first sm) "SONG") ...]))
+
+
+; A PlayerResult is one of:
+; - MusicPlayer
+; - Package
+                    
+; Exercise 3
+
+; main/player : MusicPlayer -> MusicPlayer
+; world program; world is a Musicplayer
+; runs a music player that plays songs from the server and displays the user
+; feedback from the last song played, and the song's title, artist, and album
+
+(define (main/player initial-mp)
+  (big-bang initial-mp
+    [register "dictionary.ccs.neu.edu"]
+    [port 10001]
+    [to-draw draw-player]
+    [on-tick request-song]
+    [on-key handle-space]
+    [on-receive receive-msg]))
+
+; request-song : MusicPlayer -> PlayerResult 
+; requests a song from the server when the player is in its initial state
+(check-expect (request-song MUSICPLAYER-1) (make-package MUSICPLAYER-2 CLIENTMSG))
+(check-expect (request-song MUSICPLAYER-2) MUSICPLAYER-2)
+(check-expect (request-song MUSICPLAYER-3) MUSICPLAYER-3)
+ 
+(define (request-song mp)
+  (cond
+    [(boolean? (player-mpstate mp))
+     (make-package (make-player "requested" (player-feedback mp)) CLIENTMSG)]
+    [(string? (player-mpstate mp)) mp]
+    [(song? (player-mpstate mp)) mp]))
+
+
+; receive-msg : MusicPlayer ServerMsg -> PlayerResult
+; updates the state of the player after receiving a message from the server
+; if it receives an error, then it makes another request to the server
+
+(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-1) (make-package MUSICPLAYER-2 CLIENTMSG))
+(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-2) (make-package MUSICPLAYER-2 CLIENTMSG))
+(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-3) (make-player SONG-1 ""))
+
+(define (receive-msg mp sm)
+  (cond
+    [(string=? (first sm) "ERROR") (make-package MUSICPLAYER-2 CLIENTMSG)]
+    [(string=? (first sm) "SONG") (make-player (convert-to-song sm) (player-feedback mp))]))
+
+
+; convert-to-song ; SongMsg -> Song
+; extracts metadata and bytestring from a SongMsg and converts this data to a Song struct
+(check-expect (convert-to-song SONGMSG-1) SONG-1)
+(check-expect (convert-to-song SONGMSG-2) SONG-2)
+
+(define (convert-to-song sm)
+  (make-song (first (second sm))
+             (second (second sm))
+             (third (second sm))
+             (fourth (second sm))
+             (third sm)))
+
+; handle-space : MusicPlayer KeyEvent -> MusicPlayer
+; plays the received song and awaits the feedback when the user presses the space bar
+(check-expect (handle-space MUSICPLAYER-3 "k") MUSICPLAYER-3)
+(check-expect (handle-space MUSICPLAYER-4 "p") MUSICPLAYER-4)
+(check-expect (handle-space MUSICPLAYER-2 "a") MUSICPLAYER-2)
+
+; no further check-expects are possible because play-sound calls big-bang 
+
+(define (handle-space mp ke)
+  (cond
+    [(and (key=? ke " ") (song? (player-mpstate mp)))
+     (handle-feedback mp)]
+    [else mp]))
+
+; handle-feedback : MusicPlayer -> MusicPlayer
+; replaces the prior feedback in the MusicPlayer with the
+; new feedback, and sets the MusicPlayer back to its inital state
+
+; no check expects possible because play-sound calls big-bang
+
+(define (handle-feedback mp)
+  (make-player #false (play-sound (song-bytestring (player-mpstate mp)))))
+
+
+; Image Constants
+(define BACKGROUND (empty-scene 400 300 "Black"))
+(define TEXT-SIZE 25)
+(define TEXT-COLOR "green")
+(define INSTRUCTIONS (place-image
+                      (text "Press space to play the song" TEXT-SIZE TEXT-COLOR) 200 100 BACKGROUND))
+
+
+; draw-player : MusicPlayer -> Image
+; displays instructions on how to play a song (by pressing the space bar) and 
+; renders the feedback from the user, the upcoming song's title, artist, and album
+(check-expect (draw-player MUSICPLAYER-1)
+              (place-image (waiting-image MUSICPLAYER-1) 200 150 BACKGROUND))
+(check-expect (draw-player MUSICPLAYER-2)
+              (place-image (waiting-image MUSICPLAYER-2) 200 150 BACKGROUND))
+(check-expect (draw-player MUSICPLAYER-3)
+              (place-image (draw-mpdata MUSICPLAYER-3) 200 200 INSTRUCTIONS))
+(check-expect (draw-player MUSICPLAYER-4)
+              (place-image (draw-mpdata MUSICPLAYER-4) 200 200 INSTRUCTIONS))
+(check-expect (draw-player MUSICPLAYER-5)
+              (place-image (draw-mpdata MUSICPLAYER-5) 200 200 INSTRUCTIONS))
+
+(define (draw-player mp)
+  (cond
+    [(or (string? (player-mpstate mp)) (boolean? (player-mpstate mp)))
+     (place-image (waiting-image mp) 200 150 BACKGROUND)]
+    [(song? (player-mpstate mp))
+     (place-image (draw-mpdata mp) 200 200 INSTRUCTIONS)]))
+
+; waiting-image : MusicPlayer -> Image
+; creates an image that is shown when the player is waiting for
+; a song to be requested or received from the server
+
+(check-expect (waiting-image (make-player #false "dislike"))
+              (above (text "Waiting..." TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Feedback: " "dislike") TEXT-SIZE TEXT-COLOR)))
+(check-expect (waiting-image (make-player "requested" "none"))
+              (above (text "Waiting..." TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Feedback: " "none") TEXT-SIZE TEXT-COLOR)))
+(check-expect (waiting-image MUSICPLAYER-3)
+              (above (text "Waiting..." TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Feedback: " "") TEXT-SIZE TEXT-COLOR)))
+
+(define (waiting-image mp)
+  (above (text "Waiting..." TEXT-SIZE TEXT-COLOR)
+         (text (string-append "Feedback: " (player-feedback mp)) TEXT-SIZE TEXT-COLOR)))
+
+
+; draw-songdata: MusicPlayer -> Image
+; creates an image that shows the feedback from the user,
+; and the upcoming song's title, artist, and album
+(check-expect (draw-mpdata MUSICPLAYER-3)
+              (above (text (string-append "Feedback: " "") TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Up Next: " "yo") TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Artist: " "yo") TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Album: " "o") TEXT-SIZE TEXT-COLOR)))
+
+(check-expect (draw-mpdata MUSICPLAYER-4)
+              (above (text (string-append "Feedback: " "dislike") TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Up Next: " "BankAccount") TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Artist: " "Savage") TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Album: " "issa") TEXT-SIZE TEXT-COLOR)))
+
+(check-expect (draw-mpdata MUSICPLAYER-5)
+              (above (text (string-append "Feedback: " "like") TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Up Next: " "BetterNow") TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Artist: " "Posty") TEXT-SIZE TEXT-COLOR)
+                     (text (string-append "Album: " "bandb") TEXT-SIZE TEXT-COLOR)))
+
+(define (draw-mpdata mp)
+  (above (text (string-append "Feedback: " (player-feedback mp)) TEXT-SIZE TEXT-COLOR)
+         (text (string-append "Up Next: " (song-title (player-mpstate mp))) TEXT-SIZE TEXT-COLOR)
+         (text (string-append "Artist: " (song-artist (player-mpstate mp))) TEXT-SIZE TEXT-COLOR)
+         (text (string-append "Album: " (song-album (player-mpstate mp))) TEXT-SIZE TEXT-COLOR)))
+
+      
+
+
+
+
+
+
+

@@ -1,0 +1,39 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname |format history|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+; format-history : MusicPlayer -> Image
+; stacks all the song histories on top of each other
+; with and (above (foldr (text ... of each song history)
+(define (format-history mp)
+  (local [(define HISTORY (grab-history mp))
+          (define HISTORY-AS-LIST-OF-IMAGES (history->images HISTORY))]     
+  (foldr above empty-image HISTORY-AS-LIST-OF-IMAGES)))
+
+; grab-history : MusicPlayer -> History
+; grabs the history of a music player
+
+(check-expect (grab-history MP-1) HISTORY-1)
+(check-expect (grab-history MP-2) HISTORY-2)
+(check-expect (grab-history MP-3) HISTORY-3)
+
+(define (grab-history mp)
+  (cond
+    [(request-needed? mp) (request-needed-history mp)]
+    [(request-made? mp) (request-made-history mp)]
+    [(request-received? mp) (request-received-history mp)]))
+
+; creats a constant for a history as just a list of images
+(define (history->images history)
+  (local [(define (history->los history)
+            (local [; turns a song history into a string
+                    (define (textify sh)
+                      (string-append (songhistory-title sh) " " (number->string
+                                                                 (songhistory-timesplayed sh))))]
+            (map textify history)))
+          ; creates a constant that turns a history into a list of strings where eachs tring is the
+          ; title and times played of a song history
+          (define LIST-OF-HISTORY-AS-STRINGS (history->los history))
+          ; turns the string into an image with TEXT-SIZE and TEXT-COLOR
+          (define (text-function s)
+            (text s TEXT-SIZE TEXT-COLOR))]
+  (map text-function LIST-OF-HISTORY-AS-STRINGS)))
