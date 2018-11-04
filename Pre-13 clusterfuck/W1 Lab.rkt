@@ -1,0 +1,131 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |W1 Lab|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp")) #f)))
+
+#|
+;; multiple-of-5? : Number -> Boolean
+;; is this number a multiple of 5?
+(check-expect (multiple-of-5? 10) #true)
+(check-expect (multiple-of-5? 13) #false)
+(check-expect (multiple-of-5? 5) #true)
+(check-expect (multiple-of-5? 0) #true)
+
+(define (multiple-of-5? num)
+  (= [modulo num 5] 0))
+
+(define GREETING "Heyyyyyyyyyyyyyyyyyyyyyyyyyy")
+
+;; greet : String -> String
+;; greets the given person using the given name
+
+(check-expect (greet "An Vu") "Heyyyyyyyyyyyyyyyyyyyyyyyyyy An Vu")
+(check-expect (greet "") "Heyyyyyyyyyyyyyyyyyyyyyyyyyy ")
+(check-expect (greet "Octavius") "Heyyyyyyyyyyyyyyyyyyyyyyyyyy Octavius")
+
+(define (greet name)
+  (string-append GREETING " " name))
+
+;; net-worth : Number -> Number
+;; gives percentage of net worth it would cost to fix Flint, Michigan's water
+(check-expect (net-worth 19700000000) (* (/ 55000000 19700000000) 100))
+(check-expect (net-worth 140900000000) (* (/ 55000000 140900000000) 100))
+(check-expect (net-worth 110000000) (* (/ 55000000 110000000) 100))
+
+(define (net-worth worth)
+  (* (/ 55000000 worth) 100))
+
+;; absolute : Number -> Number
+;; gives absolute value of a number
+(check-expect (absolute -2) 2)
+(check-expect (absolute 2) 2)
+(check-expect (absolute 0) 0)
+
+(define (absolute num)
+  (cond
+    [(<= 0 num) num]
+    [(> 0 num) (* num -1)]
+    ))
+    
+; A Score is a number in the range [0, 100]
+; grade-picker : Number -> String
+; takes a numerical grade and returns the letter grade equivalent
+
+(check-expect (grade-picker 105) "A")
+(check-expect (grade-picker 19) "F")
+(check-expect (grade-picker 50) "F")
+(check-expect (grade-picker 70) "C")
+
+(define (grade-picker number)
+  (cond
+    [(>= number 90) "A"]
+    [(>= number 80) "B"]
+    [(>= number 70) "C"]
+    [(>= number 60) "D"]
+    [(< number 60) "F"]
+    ))
+
+;; wage-calculator : Number Number -> Number
+;; gives the wage earned when number of hours worked and wage is input (overtime is 40+ and pays x1.5)
+
+(check-expect (wage-calculator 40 1) 40)
+(check-expect (wage-calculator 80 1) 100)
+(check-expect (wage-calculator 40 0) 0)
+(check-expect (wage-calculator 40 10) 400)
+
+(define (wage-calculator hours wage)
+  (cond
+    [(<= hours 40) (* hours wage)]
+    [(> hours 40) (+ (* 40 wage) (* (- hours 40) (* 1.5 wage)))]
+    ))
+  
+;; runtime : String -> Number
+;; inputs a movie and outputs the runtime in minutes
+
+; check error function
+
+(check-expect (runtime "avatar") 18000)
+(check-expect (runtime "three minute movie") 3)
+(check-expect (runtime "five minute movie") 5)
+(check-expect (runtime "four minute movie") 4)
+(check-error (runtime "poopey") "poopey not found")
+
+(define (runtime title)
+  (cond
+    [(string=? title "three minute movie") 3]
+    [(string=? title "four minute movie") 4]
+    [(string=? title "five minute movie") 5]
+    [(string=? title "avatar") 18000]
+    [else (error (string-append title " not found"))]
+    ))
+|#
+(require 2htdp/image)
+(define BODY (square 200 "solid" "red"))
+(define DOOR (rectangle 50 80 "solid" "brown"))
+(define KNOB (circle 5 "solid" "yellow"))
+(define WINDOW (square 30 "solid" "blue"))
+(define FULL-DOOR (overlay/align "right" "middle" KNOB DOOR))
+(define HALF-BODY (overlay/align "middle" "bottom" FULL-DOOR BODY))
+(define WINDOWS (overlay/xy
+                 (square 40 "solid" "blue")
+                 80 0
+                 (square 40 "solid" "blue")
+                 ))
+(define FULL-BODY (overlay/align/offset "middle" "top" WINDOWS
+                                        0 -40
+                                        HALF-BODY))
+
+
+
+; always x-pos y- pos
+
+(above (triangle 200 "solid" "green")
+       (overlay/align "middle" "bottom" FULL-DOOR FULL-BODY))
+
+; scene : Number -> Image
+; creates a circle on an empty scene
+
+
+(define (scene size)
+  (overlay/align "middle" "middle" (circle size "solid" "red") (empty-scene 50 50)))
+
+(scene 10)

@@ -1,0 +1,23 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |Pset 2|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(require 2htdp/image)
+
+;; Exercise 1
+
+
+
+
+;; Exercise 2
+;; place your response below
+
+
+;; Exercise 3
+;; The following tests have been supplied to help you - they should not be changed (but it may be
+;; helpful to comment them before working on this problem)
+
+;; place your response below
+
+
+;; Exercise 4
+;; place your response below

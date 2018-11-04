@@ -1,0 +1,76 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |W3 Notes|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp")) #f)))
+(require 2htdp/universe)
+(require 2htdp/image)
+
+; fundiesword : String -> String
+; simple word processor
+; dont do check expects for world problems
+
+; wishlist
+(define (fundies-word initialworld)
+  (big-bang initialworld
+    [to-draw draw-word]
+    [on-key word-handle-key]))
+
+(define BACKGROUND (square 200 "outline" "black"))
+(define FONT-SIZE 24)
+(define FONT-COLOR "black")
+
+; draw-word : String -> Image
+; returns an image that represents the entered text
+
+(check-expect (draw-word "abc")
+              (overlay
+               (text "abc" FONT-SIZE FONT-COLOR)
+               BACKGROUND))
+
+(define (draw-word txt)
+  (overlay
+   (text txt FONT-SIZE FONT-COLOR)
+   BACKGROUND))
+
+
+;; ?? how do these signiatures work/ how to find them
+; word-handle-backspace : String -> String
+; process a backspace applied to the input string
+
+(check-expect (word-handle-backspace "") "")
+(check-expect (word-handle-backspace "abc") "ab")
+
+;; how ifs work
+(define (word-handle-backspace txt)
+  (if
+   (> (string-length txt) 0)
+   (substring txt 0 (sub1 (string-length txt)))
+   txt))
+
+
+
+; ? word-handle-key : String KeyEvent -> String
+; reflects keyboard inputs in the world state
+
+(check-expect (word-handle-key "abc" "d") "abcd")
+(check-expect (word-handle-key "" "p") "p")
+(check-expect (word-handle-key "abc" "\b") "ab")
+(check-expect (word-handle-key "" "\b") "")
+
+
+
+(define (word-handle-key txt key)
+  (cond
+    [(key=? "\b" key) (word-handle-backspace txt)]
+    ;sub1 is -1 you could also do (- string-length 1)
+    [else (string-append txt key)]))
+
+
+;; tangent back toward the eclipse program
+
+
+
+
+
+
+
+    

@@ -1,0 +1,78 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname |Pset 12|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+
+
+;ex 1
+
+(define PUNCTUATION (list "," ";" "."))
+
+; remove-punctuation : String -> String
+; removes punctuation at the end of a sentence if it's there
+(check-expect (remove-punctuation "hi.") "hi")
+(check-expect (remove-punctuation "hello,") "hello")
+(check-expect (remove-punctuation "hi;") "hi")
+(check-expect (remove-punctuation "hi") "hi")
+
+(define (remove-punctuation s)
+  (local [; lastchar : String -> Char
+          ; takes a string; returns its last character
+          (define (lastchar s)
+            (string-ith s (- (string-length s) 1)))]
+  (if (member (lastchar s) PUNCTUATION)
+      (substring s 0 (- (string-length s) 1))
+      s)))
+
+
+;ex 2
+; remove-and-lower : String -> String
+; removes punction (if any) and makes a string lowercase
+(check-expect (remove-and-lower "HELLo.") "hello")
+(check-expect (remove-and-lower "HELLo") "hello")
+(check-expect (remove-and-lower "HeLLo;") "hello")
+(check-expect (remove-and-lower "hello,") "hello")
+
+(define remove-and-lower (compose remove-punctuation string-downcase))
+
+
+;ex 3
+; compound-word? : String -> Boolean
+; determines whether a word is a compound word
+(check-expect (compound-word? "com-pound") #true)
+(check-expect (compound-word? "compound") #false)
+(check-expect (compound-word? "-") #true)
+(check-expect (compound-word? "a very very long string") #false)
+(check-expect (compound-word? "com-pou-nd") #true)
+
+(define (compound-word? s)
+  (string-contains? "-" s))
+
+
+;ex 4
+
+; An [NEList-of X] (Non-Empty List of X) is one of:
+; - (cons X '())
+; - (cons X [NEList-of X])
+ 
+; bin : [X X -> Boolean] [List-of X] -> [List-of [NEList-of X]]
+; Bin lox by matches?
+(check-expect (bin = '()) '())
+(check-expect (bin = (list 2 3 4 2)) (list (list 2 2) (list 4) (list 3)))
+(define (bin matches? lox)
+  (local [; find-spot-for-x : X [List-of [NEList-of X]] -> [List-of [NEList-of X]]
+          ; Find the spot for x
+          (define (find-spot-for-x x bins)
+            (find-spot x matches? bins))]
+    (foldr find-spot-for-x '() lox)))
+ 
+; find-spot : X [X X -> Boolean] [List-of [NEList-of X]] -> [List-of [NEList-of X]]
+; Find where x belongs and place it in the appropriate list (or give it its own)
+(check-expect (find-spot 2 = '()) (list (list 2)))
+(check-expect (find-spot 2 = (list (list 3) (list 2) (list 4))) (list (list 3) (list 2 2) (list 4)))
+(define (find-spot x matches? bins)
+  (cond [(empty? bins) (list (list x))]
+        [(cons? bins) (if (matches? x (first (first bins)))
+                          (cons (cons x (first bins))
+                                (rest bins))
+                          (cons (first bins)
+                                (find-spot x matches? (rest bins))))]))

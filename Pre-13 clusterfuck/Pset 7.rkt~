@@ -1,0 +1,80 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |Pset 7|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(require 2htdp/image)
+
+;ex 1
+
+(define-struct circl [radius mode c])
+(define-struct squar [side-length mode c])
+(define-struct rectangl [width height mode c])
+ 
+; A Shape is one of:
+; - (make-circl Number Mode String)
+; - (make-squar Number Mode String)
+; - (make-rectangl Number Number Mode String)
+; Interpretation: One of multiple shapes
+; - make-circl
+;   - radius is the radius in pixels
+;   - mode is the drawing mode
+;   - c is the color to draw the circle
+; - make-squar
+;   - side-length is the side length in pixels
+;   - mode is the drawing mode
+;   - c is the color to draw the square
+; - make-rectangl
+;   - width is the width in pixels
+;   - height is the height in pixels
+;   - mode is the drawing mode
+;   - c is the color to draw the square
+
+(define SHAPE-CIRCL-1 (make-circl 25 "solid" "red"))
+(define SHAPE-SQAUR-1 (make-squar 25 "solid" "red"))
+(define SHAPE-RECTANGL-1 (make-rectangl 50 25 "solid" "red"))
+
+#;
+(define (shape-temp shape)
+  (cond
+    [(circl? shape) ...
+     (circl-radius shape) ... (circl-mode shape) ... (circl-c shape)...]
+    [(sqaur? shape) ...
+     (squar-side-length shape) ... (squar-mode shape) ... (squar c) ...]
+    [(rectangl? shape) ...
+     (rectangl-width shape) ... (rectangl-height shape) ... (rectangl-mode shape) ...
+     (rectangl-c shape) ...]))
+
+; A Mode is one of:
+; - "solid"
+; - "outline"
+; Interpretation: The drawing mode for a shape (either filled or outline)
+
+(define MODE-S "solid")
+(define MODE-O "outline")
+
+#;
+(define (mode-temp m)
+  (cond
+    [(string=? m "solid") ...]
+    [(string=? m "outline") ...]))
+
+;ex 2
+
+; circle is a function that draws a circle, circl is a data structure with fields [radius mode c]
+
+;ex 3
+
+; draw-shape: Shape -> Image
+; draws an shape
+(check-expect (draw-shape SHAPE-CIRCL-1) (circle 25 "solid" "red"))
+(check-expect (draw-shape SHAPE-SQUAR-1) (square 25 "solid" "red"))
+(check-expect (draw-shape SHAPE-RECTANGL-1) (rectangle 50 25 "solid" "red"))
+
+(define (draw-shape shape)
+  (cond
+    [(circl? shape) (circle 
+     (circl-radius shape) (circl-mode shape) (circl-c shape) )]
+    [(squar? shape) (square
+     (squar-side-length shape) (squar-mode shape) (squar c))]
+    [(rectangl? shape) (rectangle
+     (rectangl-width shape) (rectangl-height shape) (rectangl-mode shape) ...
+     (rectangl-c shape))]))

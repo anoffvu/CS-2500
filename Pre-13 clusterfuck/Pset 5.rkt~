@@ -1,0 +1,101 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |Pset 5|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ())))
+(require 2htdp/image)
+
+(define-struct minute [hour minute])
+
+; A Minute is a (make-struct PositiveInteger PositiveInteger)
+; a unit of time in the day
+; - hour is an integer between (0, 24) representing the hour in a day
+; - minute is an integer between (0, 60) representing the minute in an hour
+(define NOON (make-minute 12 0))
+(define THREE-PM (make-minute 15 0))
+(define TWO-AM (make-minute 2 0))
+
+#;
+(define (minute-temp t)
+  ... (minute-hour t) ...
+  ... (minute-minute t) ...)
+
+; next-minute : Minute -> Minute
+; returns the next minute in the day
+(check-expect (next-minute NOON)
+              (make-minute 12 1))
+(check-expect (next-minute THREE-PM)
+              (make-minute 15 1))
+(check-expect (next-minute (make-minute 23 59))
+              (make-minute 0 0))
+(check-expect (next-minute (make-minute 22 59))
+              (make-minute 23 0))
+
+(define (next-minute min)
+  (cond
+    [(and
+      (= (minute-hour min) 23)
+      (= (minute-minute min) 59))
+      (make-minute 0 0)]
+    [(= (minute-minute min) 59)
+     (make-minute (add1 (minute-hour min)) 0)]
+    [(< (minute-minute min) 59)
+     (make-minute (minute-hour min) (add1 (minute-minute min)))]))
+
+(define BACKGROUND (empty-scene 200 200 "maroon"))
+(define TEXT-SIZE 30)
+(define TEXT-COLOR "white")
+#|
+
+; draw-minute : Minute -> Image
+; Displays the time on a digital clock
+(check-expect (draw-minute NOON) (overlay (text "12:00pm" TEXT-SIZE TEXT-COLOR) BACKGROUND))
+(check-expect (draw-minute THREE-PM) (overlay (text "3:00pm" TEXT-SIZE TEXT-COLOR) BACKGROUND))
+(check-expect (draw-minute TWO-AM) (overlay (text "2:00am" TEXT-SIZE TEXT-COLOR) BACKGROUND))
+(check-expect (draw-minute (make-minute 0 0) (overlay (text "12:00am" TEXT-SIZE TEXT-COLOR) BACKGROUND)))
+
+(define (draw-minute min)
+  (cond
+    [(pm? min) 
+     (overlay 
+      
+      (string-append (number->string (minute-hour)) ":" 
+      (text "12:00pm" TEXT-SIZE TEXT-COLOR) BACKGROUND)
+  
+  
+  ... (minute-hour t) ...
+  ... (minute-minute t) ...)]))
+|#
+
+; pm? : Minute -> Boolean
+; Determines whether the time is in pm
+(check-expect (pm? NOON) #true)
+(check-expect (pm? TWO-AM) #false)
+
+(define (pm? min)
+  (if
+   (< (minute-hour min) 12) 
+   #false
+   #true))
+
+; time-formatter : Minute -> String
+; receives a minute and creates a string
+(check-expect (time-formatter NOON) "12:00")
+(check-expect (time-formatter THREE-PM) "3:00")
+(check-expect (time-formatter TWO-AM) "2:00")
+(check-expect (time-formatter (make-minute 1 1)) "1:01")
+(check-expect (time-formatter (make-minute 1 50)) "1:50")
+
+(define (time-formatter min)
+  (cond
+    [(and
+      (< (minute-minute min) 10)
+      (> (minute-hour min) 11)
+      #true)
+      (string-append (number->string (- (minute-hour min) 12)) ":0" (number->string (minute-minute min)))]
+    [(< (minute-minute min) 10) 
+     (string-append (number->string (minute-hour min)) ":0" (number->string (minute-minute min)))]
+    [(> (minute-hour min) 11) 
+     (string-append (number->string (- (minute-hour min) 12)) ":" (number->string (minute-minute min)))]
+    [else 
+     (string-append (number->string (minute-hour min)) ":" (number->string (minute-minute min)))]))
+
+         

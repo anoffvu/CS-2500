@@ -1,0 +1,136 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |Pset 8|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+;ex 1
+(define-struct video [title runtime])
+
+; A Video is a (make-video String Number)
+; Interpretation: represents a video with a title and runtime
+; - title is the title of the video
+; - runtime is the runtime of the video in seconds
+(define VIDEO-1 (make-video "vid one" 30))
+(define VIDEO-2 (make-video "vid two" 90))
+(define VIDEO-3 (make-video "vid three" 100))
+(define VIDEO-4 (make-video "vid four" 600))
+(define VIDEO-5 (make-video "vid five" 601))
+
+; video-temp : Video -> ???
+#;
+(define (video-temp v)
+  ... (video-title v) ... (video-runtime v)...)
+
+;ex 2
+
+; A List of Videos (LoV) is one of:
+; - '()
+; - (cons Video LoV)
+; Interpretation: represents a list of Videos
+(define LOV-0 '())
+(define LOV-1 (cons VIDEO-1 '()))
+(define LOV-2 (cons VIDEO-2 (cons VIDEO-1 '())))
+(define LOV-3 (cons VIDEO-3 (cons VIDEO-2 (cons VIDEO-1 '()))))
+
+#;
+(define (lov-temp lov)
+  (cond [(empty? lov) ...]
+        [(cons? lov) ... (video-temp (first lov)) ... (lov-temp (rest lov))]))
+
+(define-struct playlist [title videos])
+; A Playlist is a (make-playlist String LoV)
+; - title is the title of the playlist
+; - videos is the passed in List of Videos
+; Interpretation: represents a playlist with a title and a list of videos
+(define PLAYLIST-0 (make-playlist "zero pl" LOV-0))
+(define PLAYLIST-1 (make-playlist "one pl" LOV-1))
+(define PLAYLIST-2 (make-playlist "two pl" LOV-2))
+(define PLAYLIST-3 (make-playlist "three pl" LOV-3))
+
+#;
+(define (playlist-temp pl)
+  ... (playlist-title pl) ... (lov-temp (playlist-videos pl)) ...)
+
+;ex 3
+; impatient: Playlist -> Playlist
+; returns a playlist with only the songs that are 90 seconds or shorter
+(check-expect (impatient PLAYLIST-3) (make-playlist "three pl" (cons VIDEO-2 (cons VIDEO-1 '()))))
+(check-expect (impatient PLAYLIST-2) (make-playlist "two pl" (cons VIDEO-2 (cons VIDEO-1 '()))))
+(check-expect (impatient PLAYLIST-1) (make-playlist "one pl" (cons VIDEO-1 '())))
+(check-expect (impatient PLAYLIST-0) (make-playlist "zero pl" '()))
+
+(define (impatient pl)
+  (make-playlist (playlist-title pl) (short-sort (playlist-videos pl))))
+
+; short-sort: LoV -> LoV
+; returns a LoV with only songs that are 90 seconds or shorter
+(check-expect (short-sort LOV-3) (cons VIDEO-2 (cons VIDEO-1 '())))
+(check-expect (short-sort LOV-2) (cons VIDEO-2 (cons VIDEO-1 '())))
+(check-expect (short-sort LOV-1) (cons VIDEO-1 '()))
+(check-expect (short-sort LOV-0) '())
+
+(define (short-sort lov)
+  (cond [(empty? lov) lov]
+        [(cons? lov) (if (<= (video-runtime (first lov)) 90)
+                         (cons (first lov) (short-sort (rest lov)))
+                         (short-sort (rest lov)))]))
+
+;ex 4
+; too-long?: Playlist -> Boolean
+; tests to see if a playlist has a total runtime of over 10 minutes
+(check-expect (too-long? (make-playlist "hey" (cons VIDEO-4 '()))) #false)
+(check-expect (too-long? (make-playlist "hey" (cons VIDEO-5 '()))) #true)
+(check-expect (too-long? PLAYLIST-3) #false)
+(check-expect (too-long? PLAYLIST-2) #false)
+(check-expect (too-long? PLAYLIST-0) #false)
+
+(define (too-long? pl)
+  (> (total-time (playlist-videos pl)) 600))
+
+; total-time: LoV -> Number
+; calculates the total runtime of a LoV in seconds
+(check-expect (total-time LOV-0) 0)
+(check-expect (total-time LOV-1) 30)
+(check-expect (total-time LOV-2) 120)
+(check-expect (total-time LOV-3) 220)
+
+(define (total-time lov)
+  (cond [(empty? lov) 0]
+        [(cons? lov) (+ (video-runtime (first lov)) (total-time (rest lov)))]))
+
+;ex 5
+; A List of Playlists (LoP) is one of:
+; - '()
+; - (cons Playlist LoP)
+; Interpretation: stores a list of Playlists
+(define LOP-0 '())
+(define LOP-1 (cons PLAYLIST-1 '()))
+(define LOP-2 (cons PLAYLIST-2 (cons PLAYLIST-1 '())))
+(define LOP-3 (cons PLAYLIST-3 (cons PLAYLIST-2 (cons PLAYLIST-1 '()))))
+
+; A Minute is a Number
+; Interpretation: a unit of time where 1 minute is equal to 60 seconds
+(define MINUTE-0 0)
+(define MINUTE-1 1)
+(define MINUTE-2 2.2)
+
+; playlists-runtime: LoP -> Minutes
+; returns the total runtime of a List of Playlists in minutes
+(check-expect (playlists-runtime LOP-0) 0)
+(check-expect (playlists-runtime LOP-1) .5)
+(check-expect (playlists-runtime LOP-2) 2.5)
+
+(define (playlists-runtime lop)
+  (cond [(empty? lop) 0]
+        [(cons? lop) (+ (runtime-minutes (first lop)) (playlists-runtime (rest lop)))]))
+
+; runtime-minutes: Playlist -> Number
+; calculates the total runtime of a playlist in minutes
+(check-expect (runtime-minutes PLAYLIST-0) 0)
+(check-expect (runtime-minutes PLAYLIST-1) .5)
+(check-expect (runtime-minutes PLAYLIST-2) 2)
+
+(define (runtime-minutes pl)
+  (/ (total-time (playlist-videos pl)) 60))
+
+
+
+  

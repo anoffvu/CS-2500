@@ -1,0 +1,62 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname |Lab 8|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(require "mimic.rkt")
+
+; A [Pair X Y] is a (list X Y)
+(define pair? list?)
+(define pair-x first)
+(define pair-y second)
+(define make-pair list)
+ 
+; A [Mapping X Y] is a [List-of [Pair X Y]]
+; and associates data of type X with data of type Y
+
+; get : [Mapping X Y] X -> Y
+; Get the value in the mapping associated with x-value
+(check-error (get (list (make-pair 3 "three")) 4) "not found")
+(check-expect (get (list (make-pair 3 "three") (make-pair 4 "four")) 4) "four")
+ 
+; update-mapping : [Mapping X Y] X [Y -> Y] Y -> [Mapping X Y]
+; Update the data associated with the x-value in the mapping using the updater function
+; If the x-value is not in m, associate it with backup y-value
+(check-expect (update-mapping '() 3 add1 0) (list (make-pair 3 0)))
+(check-expect
+ (update-mapping (list (make-pair "cat" 3.14) (make-pair "dog" 5))
+                 "dog" sub1 2.5)
+ (list (make-pair "cat" 3.14) (make-pair "dog" 4)))
+
+; A [Counter X] is a [Mapping X PosInt]
+; and represents a multiset (a set of elements where an element can appear more than once)
+ 
+(define MARBLE-BAG (list (make-pair "green" 2) (make-pair "red" 5)))
+; MARBLE-BAG represents a bag with 2 "green" marbles and 5 "red" ones
+
+;ex 1
+; Design the function add-to-counter, which given a [Counter X] and an X will add 1 to the previously
+; associated count. If that element was not present, its count will be 1. Hint: do any of the
+; functions provided by "mimic.rkt" seem helpful?
+
+(check-expect (add-to-counter MARBLE-BAG "green")
+              (list (make-pair "green" 3) (make-pair "red" 5)))
+(check-expect (add-to-counter MARBLE-BAG "brown")
+              (list (make-pair "green" 3) (make-pair "red" 5) (make-pair "brown 1")))
+
+(define (add-to-counter c x)
+  (update-mapping c x add1 1))
+
+;Design the function total-size, which grabs the total count of elements in a counter
+;(there are 7 in MARBLE-BAG). Use foldr.
+(define (total-size o)
+  (local [; sum : [Pair X PosInt] Number -> Number
+          (define (sum p n)
+            (+ (pair-y p) n))]
+    (foldr sum 0 c)))
+
+
+
+
+
+
+
+

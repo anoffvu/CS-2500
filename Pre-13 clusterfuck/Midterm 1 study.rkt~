@@ -1,0 +1,26 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |Midterm 1 study|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(define-struct team [sled speed])
+(define (sled-speed ds)
+  (cond
+    [(string? ds) 0]
+    [(team? ds)
+     (if
+      (> (max (team-speed ds) (sled-speed (team-sled ds))) 100)
+      100
+      (max (team-speed ds)(sled-speed (team-sled ds))))]))
+
+(define-struct listing (name price more))
+(check-expect (look (make-listing "one" 1 (make-listing "two" 2 (make-listing "three" 3 #false)))
+                    "one") 1)
+(check-expect (look (make-listing "one" 1 (make-listing "two" 2 (make-listing "three" 3 #false)))
+                    "hello") -1)
+
+(define (look db s)
+  (cond
+    [(boolean? db) -1]
+    [(listing? db) (if
+                    (string=? (listing-name db) s)
+                    (listing-price db)
+                    (look (listing-more db) s))]))

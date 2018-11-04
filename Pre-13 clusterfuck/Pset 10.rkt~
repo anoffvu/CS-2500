@@ -1,0 +1,100 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname |Pset 10|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(define-struct book [title author page-count])
+(define-struct article [title author url word-count])
+; An InfoSource is one of:
+; - (make-book String String Number)
+; - (make-article String String String Number)
+; and represents either:
+; - a book's name, author, and number of pages
+; - an online article's name, author, url, and number of words
+ 
+(define INFO-SOURCE/BOOK (make-book "On Directing Film" "David Mamet" 128))
+(define INFO-SOURCE/ARTICLE
+  (make-article "How Did Moonlight Win Best Picture?"
+                "Kyle Buchanan"
+                "http://www.vulture.com/2017/02/oscars-2017-how-did-moonlight-win-best-picture.html"
+                1285))
+ 
+; infosource-temp : InfoSource -> ?
+(define (infosource-temp i)
+  (cond [(book? i) (... (book-title i) (book-author i) (book-page-count i))]
+        [(article? i) (... (article-title i)
+                           (article-author i)
+                           (article-url i)
+                           (article-word-count i))]))
+
+; A InfoList is a [List-of InfoSource]
+
+(define INFOLIST-0 (list INFO-SOURCE/BOOK INFO-SOURCE/ARTICLE))
+(define INFOLIST-1 (list INFO-SOURCE/BOOK))
+(define INFOLIST-2 (list INFO-SOURCE/ARTICLE))
+(define INFOLIST-3 (list ))
+
+#;
+(define (infolist-temp il)
+  (cond [(empty? il) ...]
+        [(cons? il) ... (infosource-temp (first il)) ...
+                    ... (infolist-temp (rest il)) ...]))
+
+;ex 1
+
+; only-books : InfoList -> InfoList
+; accepts an InfoList and returns an InfoList with only the books of the original
+
+(check-expect (only-books INFOLIST-0) (list INFO-SOURCE/BOOK))
+(check-expect (only-books INFOLIST-1) (list INFO-SOURCE/BOOK))
+(check-expect (only-books INFOLIST-2) (list ))
+(check-expect (only-books INFOLIST-3) (list ))
+
+(define (only-books il)
+  (filter book? il))
+
+;ex 2
+
+;                            ???
+; all-titles : InfoList -> [List-of String]
+; converts an InfoList into a list of all its titles
+(check-expect (all-titles INFOLIST-0) (list "On Directing Film"
+                                            "How Did Moonlight Win Best Picture?"))
+(check-expect (all-titles INFOLIST-1) (list "On Directing Film"))
+(check-expect (all-titles INFOLIST-2) (list "How Did Moonlight Win Best Picture?"))
+(check-expect (all-titles INFOLIST-3) (list ))
+
+(define (all-titles il)
+  (map title-grab il))
+
+; title-grab : InfoSource -> String
+; takes in an infosource and outputs its title
+(check-expect (title-grab INFO-SOURCE/BOOK) "On Directing Film")
+(check-expect (title-grab INFO-SOURCE/ARTICLE) "How Did Moonlight Win Best Picture?")
+
+(define (title-grab is)
+  (cond [(book? is) (book-title is)]
+        [(article? is) (article-title is)]))
+
+
+;ex 3
+;                            ???
+; all-titles : InfoList -> String
+; converts an InfoList into a string of all its authors
+(check-expect (all-authors INFOLIST-0) "David Mamet Kyle Buchanan ")
+(check-expect (all-authors INFOLIST-1) "David Mamet ")
+(check-expect (all-authors INFOLIST-2) "Kyle Buchanan ")
+(check-expect (all-authors INFOLIST-3) "")
+
+(define (all-authors il)
+  (foldr author-grab "" il))
+
+; author-grab : InfoSource -> String
+; takes in an infosource and outputs its title
+(check-expect (author-grab INFO-SOURCE/BOOK "") "David Mamet ")
+(check-expect (author-grab INFO-SOURCE/ARTICLE "") "Kyle Buchanan ")
+
+(define (author-grab is string)
+  ;example of a (beside (draw-guessed (guessed-char g1s)) img)]
+  (cond [(book? is) (string-append (book-author is) " " string)]
+        [(article? is) (string-append (article-author is) " " string)]))
+
+

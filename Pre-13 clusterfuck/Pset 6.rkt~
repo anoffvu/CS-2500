@@ -1,0 +1,66 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |Pset 6|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(require 2htdp/universe)
+(require 2htdp/image)
+(require neu-fall18)
+
+; A FeedbackString is one of:
+; - ""
+; - "dislike"
+; - "like"
+; - "none"
+; Interpretation: The feedback that the user gave to the last song played.  The string
+; "none" represents that the user gave no feedback, and the string "" represents
+; that no feedback has been received yet (i.e., we are playing the first song).
+(define FEEDBACKSTRING-EMPTY "")
+(define FEEDBACKSTRING-DISLIKE "dislike")
+(define FEEDBACKSTRING-LIKE "like")
+(define FEEDBACKSTRING-NONE "none")
+; (define (feedbackstring-temp fs)
+;   (cond
+;     [(string=? fs FEEDBACKSTRING-EMPTY) ...]
+;     [(string=? fs FEEDBACKSTRING-DISLIKE) ...]
+;     [(string=? fs FEEDBACKSTRING-LIKE) ...]
+;     [(string=? fs FEEDBACKSTRING-NONE) ...]))
+ 
+(define-struct player [song1 song2 feedback])
+ 
+; A MusicPlayer is a (make-player String String FeedbackString)
+; Interpretation: The state of the music player
+; - song1 is the bytes of the current song being played
+; - song2 is the bytes of the next song to played
+; - feedback is the feedback received from the user for the last song played
+(define MUSICPLAYER-0 (make-player "" "" ""))
+(define MUSICPLAYER-1 (make-player "fakesong1" "fakesong2" "like"))
+(define MUSICPLAYER-2 (make-player THUG-LIFE TONYA "like"))
+; (define (musicplayer-temp mp)
+;   ... (player-song1 mp) ... (player-song2 mp) ... (player-feedback mp) ...)
+
+(define THUG-LIFE (file-as-bytes "/Users/An/Desktop/ThugLife.mp3"))
+(define TONYA (file-as-bytes "/Users/An/Desktop/Tonya.mp3"))
+
+; main/player : World -> World
+; makes a simple music player
+
+#;
+(define main/player
+  (big-bang initialworld
+    [to-draw draw-clock]
+    [on-key key-interact]))
+
+; controller : MusicPlayer KeyEvent-> MusicPlayer
+; displays feedback and plays the songs
+
+
+(define TEXT-SIZE 24)
+(define TEXT-COLOR "red")
+(define BACKGROUND (empty-scene 200 200))
+; diplay-feedback : MusicPlayer -> Image
+; displays the last feedback received
+(check-expect (display-feedback MUSICPLAYER-1) (overlay
+                                                (text "like" TEXT-SIZE TEXT-COLOR) BACKGROUND))
+
+(define (display-feedback mp)
+  (overlay (text (player-feedback mp) TEXT-SIZE TEXT-COLOR) BACKGROUND))
+  

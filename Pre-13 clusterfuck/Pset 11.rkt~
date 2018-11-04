@@ -1,0 +1,54 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname |Pset 11|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+;ex 1
+; even-squares : [List-of Number] -> [List-of Number]
+; takes a list of numbers and returns the squares of all even numbers in it
+(check-expect (even-squares (list 0 2 4 6 9)) (list 0 4 16 36))
+(check-expect (even-squares '()) '())
+(check-expect (even-squares (list 1 3 5)) '())
+
+(define (even-squares lon)
+  (local [(define (even-list lon)
+            (filter even? lon))
+          (define (square num)
+            (* num num))]
+    (map square (even-list lon))))
+
+
+;ex 2
+
+; even-squares.2 : [List-of Number] -> [List-of Number]
+; takes a list of numbers and returns the squares of all even numbers in it
+(check-expect (even-squares.2 (list 0 2 4 6 9)) (list 0 4 16 36))
+(check-expect (even-squares.2 '()) '())
+(check-expect (even-squares.2 (list 1 3 5)) '())
+
+(define (even-squares.2 lon)
+  (local [(define (square-if-even num base)
+            (if (even? num) (cons (* num num) base) base))]
+    (foldr square-if-even '() lon)))
+
+;ex 3
+(define (square x)
+  (* x x))
+; map-filter : (X Y) [List-of X] [X -> Boolean] [X -> Y] -> [List-of Y]
+(check-expect (map-filter (list 0 2 4 6 9) even? square) (list 0 4 16 36))
+(check-expect (map-filter '() even? square) '())
+(check-expect (map-filter (list 1 3 5) even? square) '())
+(check-expect (map-filter (list 1 3 5) odd? add1) (list 2 4 6))
+(check-expect (map-filter (list 0 2 4 6 9) even? sub1) (list -1 1 3 5))
+
+(define (map-filter lox pred fxn)
+  (map fxn (filter pred lox)))
+
+; even-squares.3 : [List-of Number] -> [List-of Number]
+; takes a list of numbers and returns the squares of all even numbers in it
+(check-expect (even-squares.3 (list 0 2 4 6 9)) (list 0 4 16 36))
+(check-expect (even-squares.3 '()) '())
+(check-expect (even-squares.3 (list 1 3 5)) '())
+
+(define (even-squares.3 lon)
+  (map-filter lon even? square))
+
+
