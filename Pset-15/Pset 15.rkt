@@ -96,17 +96,12 @@
 (check-expect (num-endings ENDING-1) 1)
 (check-expect (num-endings CHAPTER-3) 1)
 (check-expect (num-endings CHAPTER-2) 3)
-(check-expect (num-endings CHAPTER-1) 6)
+(check-expect (num-endings CHAPTER-1) 9)
 
 (define (num-endings s)            
   (cond
     [(ending? s) 1 ]
-    [(chapter? s) (foldr + 0 (map num-endings-given-choice (chapter-choices s)))]))
-
-(define (num-endings-given-choice c)
-    (cond
-      [(ending? (choice-result c)) 1]
-      [(chapter? (choice-result c)) (map num-endings (list (choice-result c)))]))
+    [(chapter? s) (foldr + 0 (map num-endings (map choice-result (chapter-choices s))))]))
 
 
 
