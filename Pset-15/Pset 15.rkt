@@ -7,6 +7,11 @@
 (define-struct ending [text good?])
 ; and represents an ending to the story with some text and whether it was a happy ever after
 
+(define ENDING-1 (make-ending "You lived" #true))
+(define ENDING-2 (make-ending "You died" #false))
+(define ENDING-3 (make-ending "You found a banana" #true))
+(define ENDING-4 (make-ending "You found ebola" #false))
+
 #;
 (define (ending-temp e)
   ... (ending-text e) ... (ending-good? e) ...)
@@ -23,6 +28,10 @@
 (define CHOICE-2 (make-choice "pure lard" ENDING-2))
 (define CHOICE-3 (make-choice "candles" ENDING-3))
 (define CHOICE-7 (make-choice "home" ENDING-4))
+
+#;
+(define (choice-temp c)
+  ... (choice-text c) ... (choice-result c) ... )
 
 
 ; A Chapter is a (make-chapter String [NEList-of Choice])
@@ -41,6 +50,8 @@
 (define CHOICE-6 (make-choice "yes" CHAPTER-2))
 (define CHAPTER-1 (make-chapter "You just got to the buffet. Do you eat?"
                                  (list CHOICE-4 CHOICE-5 CHOICE-6)))
+(define CHOICE-8 (make-choice "sudden complexity" CHAPTER-1))
+(define CHAPTER-0 (make-chapter "what is this storyline" (list CHOICE-8 CHOICE-4 CHOICE-5 CHOICE-6)))
 
 
 ; A Section is one of:
@@ -79,5 +90,29 @@
          "You accept the simple beauty of the void. You achieve nirvana." #t))))))))
 
 ;ex 2
-; possible-endings : Section -> Number
+; num-endings : Section -> Number
 ; calculates the total possible number of endings of a story
+
+(check-expect (num-endings ENDING-1) 1)
+(check-expect (num-endings CHAPTER-3) 1)
+(check-expect (num-endings CHAPTER-2) 3)
+(check-expect (num-endings CHAPTER-1) 6)
+
+(define (num-endings s)            
+  (cond
+    [(ending? s) 1 ]
+    [(chapter? s) (foldr + 0 (map num-endings-given-choice (chapter-choices s)))]))
+
+(define (num-endings-given-choice c)
+    (cond
+      [(ending? (choice-result c)) 1]
+      [(chapter? (choice-result c)) (map num-endings (list (choice-result c)))]))
+
+
+
+
+
+
+
+
+
