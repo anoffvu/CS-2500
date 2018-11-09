@@ -1,0 +1,57 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname ps15) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp")) #f)))
+; A Section is one of:
+; - Ending
+; - Chapter
+; and represents a section in a choose your own adventure book
+ 
+; An Ending is a (make-ending String Boolean)
+(define-struct ending [text good?])
+; and represents an ending to the story with some text and whether it was a happy ever after
+ 
+; A Chapter is a (make-chapter String [NEList-of Choice])
+(define-struct chapter [text choices])
+; and represents a chapter in a choose-your-own adventure book with a body
+; and a list of choices at the end
+
+ 
+; An [NEList-of X] (Non-Empty List) is one of:
+; - (cons X '())
+; - (cons X [NEList-of X])
+ 
+; A Choice is a a (make-choice String Section)
+(define-struct choice [text result])
+; and represents the blurb shown to the reader and the resulting section if that is the
+; choice they make
+; Examples:
+ 
+(define MY-STORY
+  (make-chapter
+   "You are alone in a room. There is a door before you."
+   (list
+    (make-choice
+     "Stay in the room."
+     (make-ending "You stay in the room. Nothing happens. Nothing ever will again." #f))
+    (make-choice
+     "Open the door."
+     (make-chapter
+      "You open the door. On the other side lays an eternity of nothingness."
+      (list
+       (make-choice
+        "Scream."
+        (make-ending
+         "You scream into the void. There is no response. There never will be." #f))
+       (make-choice
+        "Accept your fate."
+        (make-ending
+         "You accept the simple beauty of the void. You achieve nirvana." #t))))))))
+
+; Exercise 1
+
+; Section Template:
+#;
+(define (section-temp s)
+  (cond
+    [(ending? s) ... (ending-text s) ... (ending-good? s) ...]
+    [(chapter? s) ... (chapter-text s) ... (chapter-choices s) ...]))
