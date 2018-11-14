@@ -3,12 +3,18 @@
 #reader(lib "htdp-intermediate-reader.ss" "lang")((modname PS16) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp")) #f)))
 ; Problem Set 16
 
+(require 2htdp/universe)
+(require 2htdp/image)
+(require neu-fall18)
+(require 2htdp/batch-io)
+
 ; NOTES:
 ; gets list of songs as soon as the program starts (first state, requests metadatamsg)
 ; when in the second state, nothing happens, waiting for song or metadata list, etc
 ; when you press enter, brings you into the state where you have a song ready to play (third)
 ; songmsg/errormsg is received from the server once a specific song is requested from the list
-;         (w/ enter), but not metadatamsg 
+;         (w/ enter), but not metadatamsg
+
 
 ; NEEDED:
 ; function that transforms IDMetaDataPair into Song, adding in bystestring from request
@@ -18,12 +24,6 @@
 ; play screen with list of songs -> have each song name then next to it, playcount
 ; ADD CLAUSE IN KEY-HANDLER TO NOT RESPOND TO KEYS BEFORE USER HAS SONG OPTIONS
 
-
-
-(require 2htdp/universe)
-(require 2htdp/image)
-(require neu-fall18)
-(require 2htdp/batch-io)
 
 
 (define-struct song [title artist length album bytestring id])
@@ -79,55 +79,6 @@
   (cond
     [(empty? h) ... h ...]
     [(cons? h) ... (songhistory-temp (first h)) ... (history-temp (rest h)) ...]))
-
-         
-                    
-; a MusicPlayerState is one of:
-; - #false
-;   - represents that the program has started and a song has not been requested yet
-; - "requested"
-;   - when a song has been requested from the server but not yet received
-; - (make-song String String Number String String) 
-;   - when a requested song has been received from the server
-; Interpretation: the current state of a music player
-; Examples:
-(define MPSTATE-1 #false)
-(define MPSTATE-2 "requested")
-(define MPSTATE-3 (make-song "yo" "yo" 222 "o" "oo" 12))
-(define MPSTATE-4 SONG-1)
-(define MPSTATE-5 SONG-2)
-; Template:
-; mpstate-temp: MusicPlayerState -> ?
-#;
-(define (mpstate-temp mps)
-  (cond
-    [(boolean? mps) ...]
-    [(string? mps) ...]
-    [(song? mps) ... (song-temp mps) ...])) 
-
-
-(define-struct player [mpstate history feedback index])
-; A MusicPlayer is a (make-player MusicPlayerState [List-of SongHistory] FeedbackString) ****INDEX stuff
-; Interpretation: A music player with a current state and a feedback 
-; - where mpstate is the current state of the music player
-; - history is the list of song histories of the player
-; - feedback is the feedback received from the user for the last song played
-; - and index represents the current highlighted choice of song when the user is making a request
-; Examples:
-(define MUSICPLAYER-1 (make-player MPSTATE-1 (list ) "" 0))
-(define MUSICPLAYER-2 (make-player MPSTATE-2 (list ) "" 0))
-(define MUSICPLAYER-3 (make-player MPSTATE-3 HISTORY-1 "" 0))
-(define MUSICPLAYER-4 (make-player MPSTATE-4 HISTORY-1 "dislike" 1))
-(define MUSICPLAYER-5 (make-player MPSTATE-5 HISTORY-3 "like" 1))
-; Template:
-; musicplayer-temp: MusicPlayer -> ?
-#;
-(define (musicplayer-temp mp)
-  ... (mpstate-temp (player-mpstate mp)) ...
-  ... (history-temp (player-history mp)) ...
-  ... (feedback-temp (player-feedback mp) ...)
-  ... (player-index mp) ...)
-
 
 ; A FeedbackString is one of:
 ; - ""
@@ -246,7 +197,65 @@
   (cond
     [(string=? (first sm) "ERROR") ...]
     [(string=? (first sm) "SONG") ...]
-    [(string=? (first sm) "METADATA") ...]))
+    [(string=? (first sm) "METADATA") ... (metadatamsg-temp sm) ...]))
+
+         
+;;2nd state, if keeping, add examples for MPSTATE and then musicplayer
+;for mpstate and mp, examples 6 and 7 are supposed to be the second state of the player,
+;just didn't want to have to rearrange all examples for the check expects and what not
+; a MusicPlayerState is one of:
+; - #false
+;   - represents that the program has started and has not yet received the MetaDataMsg from server
+; - MetaDataMsg
+;   - when the MetaDataMsg has been received from the server and the user needs to choose a song
+; - "requested"
+;   - when a song has been requested from the server but not yet received
+; - (make-song String String Number String String) 
+;   - when a requested song has been received from the server
+; Interpretation: the current state of a music player
+; Examples:
+(define MPSTATE-1 #false)
+(define MPSTATE-2 "requested")
+(define MPSTATE-3 (make-song "yo" "yo" 222 "o" "oo" 12))
+(define MPSTATE-4 SONG-1)
+(define MPSTATE-5 SONG-2)
+(define MPSTATE-6 METADATAMSG-1)
+(define MPSTATE-7 METADATAMSG-2)
+; Template:
+; mpstate-temp: MusicPlayerState -> ?
+#;
+(define (mpstate-temp mps)
+  (cond
+    [(boolean? mps) ...]
+    [(string=? "METADATA" (first mps)) ... (metadatamsg-temp mps) ...]
+    [(string? mps) ...]
+    [(song? mps) ... (song-temp mps) ...])) 
+
+
+(define-struct player [mpstate history feedback index])
+; A MusicPlayer is a (make-player MusicPlayerState [List-of SongHistory] FeedbackString) ****INDEX stuff
+; Interpretation: A music player with a current state and a feedback 
+; - where mpstate is the current state of the music player
+; - history is the list of song histories of the player
+; - feedback is the feedback received from the user for the last song played
+; - and index represents the current highlighted choice of a song when the user is making a request
+; Examples:
+(define MUSICPLAYER-1 (make-player MPSTATE-1 (list ) "" 0))
+(define MUSICPLAYER-2 (make-player MPSTATE-2 (list ) "" 0))
+(define MUSICPLAYER-3 (make-player MPSTATE-3 HISTORY-1 "" 0))
+(define MUSICPLAYER-4 (make-player MPSTATE-4 HISTORY-1 "dislike" 1))
+(define MUSICPLAYER-5 (make-player MPSTATE-5 HISTORY-3 "like" 1))
+(define MUSICPLAYER-6 (make-player MPSTATE-6 HISTORY-3 "like" 0))
+(define MUSICPLAYER-7 (make-player MPSTATE-7 HISTORY-1 "none" 2))
+
+; Template:
+; musicplayer-temp: MusicPlayer -> ?
+#;
+(define (musicplayer-temp mp)
+  ... (mpstate-temp (player-mpstate mp)) ...
+  ... (history-temp (player-history mp)) ...
+  ... (feedback-temp (player-feedback mp) ...)
+  ... (player-index mp) ...)
 
 
 ; A PlayerResult is one of:
