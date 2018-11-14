@@ -151,16 +151,17 @@
     [(string=? fs FEEDBACKSTRING-NONE) ...]))
 
  
+; A ClientMsg is a Nat
+; representing a request for a SongMsg with a specific ID#
+(define CLIENTMSG-1 "2929")
+(define CLIENTMSG-2 "8573")
+
 ; A Package is a (make-package MusicPlayer ClientMsg)
 ; - and dictacts the next state of the world as well as
 ; - the message sent from the client to the server
-(define PACKAGE-1 (make-package MUSICPLAYER-1 "next"))
-(define PACKAGE-2 (make-package MUSICPLAYER-2 "next"))
+(define PACKAGE-1 (make-package MUSICPLAYER-1 CLIENTMSG-1))
+(define PACKAGE-2 (make-package MUSICPLAYER-2 CLIENTMSG-2))
 
-
-; A ClientMsg is "next"
-; and represents a request for the next song
-(define CLIENTMSG "next")
 
 ; A Metadata is a (list String String Number String)
 ; Interpretation: the data pertaining to a song
@@ -180,6 +181,12 @@
    ... (first md) ... (second md) ... (third md) ... (fourth md) ...])
 
 
+; An ErrorMsg is a (list "ERROR" String)
+; where the second string is the message from the server about what went wrong
+; Examples:
+(define ERRORMSG-1 (list "ERROR" "server too busy"))
+(define ERRORMSG-2 (list "ERROR" "a song cannot be found"))
+
 ; A SongMsg is a (list "SONG" Nat Metadata String)
 ; - where the Nat is the song's unique ID#
 ; - the Metadata is information about the song
@@ -188,30 +195,56 @@
 (define SONGMSG-1 (list "SONG" 2929 METADATA-1 "xxx"))
 (define SONGMSG-2 (list "SONG" 8573 METADATA-2 "yyy"))
 
-
-; An ErrorMsg is a (list "ERROR" String)
-; where the second string is the message from the server about what went wrong
+; A MetadataMsg is a (list "METADATA" [List-of IDMetaPair])
+; where the list contains all of the metadata and ids of the songs available on the server
 ; Examples:
-(define ERRORMSG-1 (list "ERROR" "server too busy"))
-(define ERRORMSG-2 (list "ERROR" "a song cannot be found"))
+(define METADATAMSG-0 (list "METADATA" (list )))
+(define METADATAMSG-1 (list "METADATA" (list IDMETAPAIR-1)))
+(define METADATAMSG-2 (list "METADATA" (list IDMETAPAIR-1 IDMETAPAIR-2)))
+; Template:
+; metadatamsg-temp : MetaDataMsg -> ?
+#;
+(define (metadatamsg-temp mdm)
+  (cond
+    [(empty? mdm) ...]
+    [(cons? mdm) (idmetapair-temp (first (second mdm))) ... (idmetapair-temp (rest (second mdm)))]))
+ 
+; A IDMetaPair is a (list Nat Metadata)
+; - where the nat is the id of the song
+; - and the metadata contains all of the metadata of the song
+; Examples:
+(define IDMETAPAIR-1 (list 2929 METADATA-1))
+(define IDMETAPAIR-2 (list 8573 METADATA-2))
+; Template:
+; idmetapair-temp : IDMetaPair -> ?
+#;
+(define (idmetapair-temp idmp)
+  (cond
+    [(empty? idmp) ...]
+    [(cons? idmp) ... (first idmp) ... (metadata-temp (second idmp)) ...]))
+
 
 
 ; A ServerMsg is one of:
 ; - ErrorMsg
 ; - SongMsg
+; - MetadataMsg
 ; Interpretation: the response received from the server
 ; Examples:
 (define SERVERMSG-1 ERRORMSG-1)
 (define SERVERMSG-2 ERRORMSG-2)
 (define SERVERMSG-3 SONGMSG-1)
 (define SERVERMSG-4 SONGMSG-2)
+(define SERVERMSG-5 METADATAMSG-1)
+(define SERVERMSG-6 METADATAMSG-2)
 ; Template
 ; servermsg-temp: ServerMsg -> ?
 #;
 (define (servermsg-temp sm)
   (cond
     [(string=? (first sm) "ERROR") ...]
-    [(string=? (first sm) "SONG") ...]))
+    [(string=? (first sm) "SONG") ...]
+    [(string=? (first sm) "METADATA") ...]))
 
 
 ; A PlayerResult is one of:
