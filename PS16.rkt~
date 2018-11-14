@@ -12,8 +12,7 @@
 
 ; NEEDED:
 ; function that transforms IDMetaDataPair into Song, adding in bystestring from request
-; in MPState data def, add another state where you have the list of available songs,
-;       but have not yet requested a song
+; in MPState data def, add another state where you have the list of available songs
 ; in MP data def, add the current index into the struct to work properly with modulo/choosing songs
 ; play screen with list of songs -> have each song name then next to it, playcount
 ; ADD CLAUSE IN KEY-HANDLER TO NOT RESPOND TO KEYS BEFORE USER HAS SONG OPTIONS
