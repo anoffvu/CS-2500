@@ -106,25 +106,27 @@
     [(song? mps) ... (song-temp mps) ...])) 
 
 
-(define-struct player [mpstate history feedback])
-; A MusicPlayer is a (make-player MusicPlayerState [List-of SongHistory] FeedbackString)
+(define-struct player [mpstate history feedback index])
+; A MusicPlayer is a (make-player MusicPlayerState [List-of SongHistory] FeedbackString) ****INDEX stuff
 ; Interpretation: A music player with a current state and a feedback 
 ; - where mpstate is the current state of the music player
 ; - history is the list of song histories of the player
-; - and feedback is the feedback received from the user for the last song played
+; - feedback is the feedback received from the user for the last song played
+; - and index represents the current highlighted choice of song when the user is making a request
 ; Examples:
-(define MUSICPLAYER-1 (make-player MPSTATE-1 (list ) ""))
-(define MUSICPLAYER-2 (make-player MPSTATE-2 (list ) ""))
-(define MUSICPLAYER-3 (make-player MPSTATE-3 HISTORY-1 ""))
-(define MUSICPLAYER-4 (make-player MPSTATE-4 HISTORY-1 "dislike"))
-(define MUSICPLAYER-5 (make-player MPSTATE-5 HISTORY-3 "like"))
+(define MUSICPLAYER-1 (make-player MPSTATE-1 (list ) "" 0))
+(define MUSICPLAYER-2 (make-player MPSTATE-2 (list ) "" 0))
+(define MUSICPLAYER-3 (make-player MPSTATE-3 HISTORY-1 "" 0))
+(define MUSICPLAYER-4 (make-player MPSTATE-4 HISTORY-1 "dislike" 1))
+(define MUSICPLAYER-5 (make-player MPSTATE-5 HISTORY-3 "like" 1))
 ; Template:
 ; musicplayer-temp: MusicPlayer -> ?
 #;
 (define (musicplayer-temp mp)
   ... (mpstate-temp (player-mpstate mp)) ...
   ... (history-temp (player-history mp)) ...
-  ... (feedback-temp (player-feedback mp) ...))
+  ... (feedback-temp (player-feedback mp) ...)
+  ... (player-index mp) ...)
 
 
 ; A FeedbackString is one of:
