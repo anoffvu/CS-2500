@@ -39,6 +39,7 @@
 (define SONG-1 (make-song "BankAccount" "Savage" 155 "issa" "xxx" 2929))
 (define SONG-2 (make-song "BetterNow" "Posty" 201 "bandb" "yyy" 8573))
 (define SONG-3 (make-song "8teen" "Khalid" 255 "American Teen" "zzz" 7163))
+(define SONG-4 (make-song "hello" "ice" 213 "idk" "zzz" 9999))
   
 ; Template:
 ; song-temp : Song -> ?
@@ -125,6 +126,7 @@
 ; Examples
 (define METADATA-1 (list "BankAccount" "Savage" 155 "issa"))
 (define METADATA-2 (list "BetterNow" "Posty" 201 "bandb"))
+(define METADATA-3 (list "hello" "ice" 213 "idk"))
 ; Template:
 ; metadata-temp: Metadata -> ?
 #;
@@ -147,27 +149,15 @@
 ; Interpretation: The given song from the server, including its ID#, Metadata bytes
 (define SONGMSG-1 (list "SONG" 2929 METADATA-1 "xxx"))
 (define SONGMSG-2 (list "SONG" 8573 METADATA-2 "yyy"))
+(define SONGMSG-3 (list "SONG" 9999 METADATA-3 "zzz"))
 
-; A MetadataMsg is a (list "METADATA" [List-of IDMetaPair])
-; where the list contains all of the metadata and ids of the songs available on the server
-; Examples:
-(define METADATAMSG-0 (list "METADATA" (list )))
-(define METADATAMSG-1 (list "METADATA" (list IDMETAPAIR-1)))
-(define METADATAMSG-2 (list "METADATA" (list IDMETAPAIR-1 IDMETAPAIR-2)))
-; Template:
-; metadatamsg-temp : MetaDataMsg -> ?
-#;
-(define (metadatamsg-temp mdm)
-  (cond
-    [(empty? mdm) ...]
-    [(cons? mdm) (idmetapair-temp (first (second mdm))) ... (idmetapair-temp (rest (second mdm)))]))
- 
 ; A IDMetaPair is a (list Nat Metadata)
 ; - where the nat is the id of the song
 ; - and the metadata contains all of the metadata of the song
 ; Examples:
 (define IDMETAPAIR-1 (list 2929 METADATA-1))
 (define IDMETAPAIR-2 (list 8573 METADATA-2))
+(define IDMETAPAIR-3 (list 9999 METADATA-3))
 ; Template:
 ; idmetapair-temp : IDMetaPair -> ?
 #;
@@ -175,6 +165,21 @@
   (cond
     [(empty? idmp) ...]
     [(cons? idmp) ... (first idmp) ... (metadata-temp (second idmp)) ...]))
+
+; A MetadataMsg is a (list "METADATA" [List-of IDMetaPair])
+; where the list contains all of the metadata and ids of the songs available on the server
+; Examples:
+(define METADATAMSG-0 (list "METADATA" (list )))
+(define METADATAMSG-1 (list "METADATA" (list IDMETAPAIR-1)))
+(define METADATAMSG-2 (list "METADATA" (list IDMETAPAIR-1 IDMETAPAIR-2 IDMETAPAIR-3)))
+; Template:
+; metadatamsg-temp : MetaDataMsg -> ?
+#;
+(define (metadatamsg-temp mdm)
+  (cond
+    [(empty? mdm) ...]
+    [(cons? mdm) (idmetapair-temp (first (second mdm))) ... (idmetapair-temp (rest (second mdm)))]))
+
 
 
 
@@ -221,6 +226,7 @@
 (define MPSTATE-5 SONG-2)
 (define MPSTATE-6 METADATAMSG-1)
 (define MPSTATE-7 METADATAMSG-2)
+(define MPSTATE-8 SONG-4)
 ; Template:
 ; mpstate-temp: MusicPlayerState -> ?
 #;
@@ -243,10 +249,13 @@
 (define MUSICPLAYER-1 (make-player MPSTATE-1 (list ) "" 0))
 (define MUSICPLAYER-2 (make-player MPSTATE-2 (list ) "" 0))
 (define MUSICPLAYER-3 (make-player MPSTATE-3 HISTORY-1 "" 0))
-(define MUSICPLAYER-4 (make-player MPSTATE-4 HISTORY-1 "dislike" 1))
-(define MUSICPLAYER-5 (make-player MPSTATE-5 HISTORY-3 "like" 1))
+(define MUSICPLAYER-4 (make-player MPSTATE-4 HISTORY-1 "dislike" 0))
+(define MUSICPLAYER-5 (make-player MPSTATE-5 HISTORY-3 "like" 0))
 (define MUSICPLAYER-6 (make-player MPSTATE-6 HISTORY-3 "like" 0))
-(define MUSICPLAYER-7 (make-player MPSTATE-7 HISTORY-1 "none" 2))
+(define MUSICPLAYER-7 (make-player MPSTATE-7 HISTORY-1 "" 0))
+(define MUSICPLAYER-8 (make-player MPSTATE-7 HISTORY-1 "" 1))
+(define MUSICPLAYER-9 (make-player MPSTATE-7 HISTORY-1 "" 2))
+(define MUSICPLAYER-10 (make-player MPSTATE-2 HISTORY-1 "" 0))
 
 ; Template:
 ; musicplayer-temp: MusicPlayer -> ?
@@ -306,9 +315,11 @@
       (read-history fpath)
       '()))
 
-(define INITIAL-PLAYER (make-player MPSTATE-1 (read-file-if-exists FILEPATH) FEEDBACKSTRING-EMPTY))
+(define INITIAL-PLAYER (make-player MPSTATE-1 (read-file-if-exists FILEPATH) FEEDBACKSTRING-EMPTY 0))
 
               
+
+
 
 ; request-song : MusicPlayer -> PlayerResult 
 ; requests a song from the server when the player is in its initial state
@@ -327,7 +338,7 @@
 ; receive-msg : MusicPlayer ServerMsg -> PlayerResult
 ; updates the state of the player after receiving a message from the server
 ; if it receives an error, then it makes another request to the server
-
+; **** ERROR????
 (check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-1) (make-package MUSICPLAYER-2 CLIENTMSG))
 (check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-2) (make-package MUSICPLAYER-2 CLIENTMSG))
 (check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-3) (make-player SONG-1 HISTORY-0 ""))
@@ -335,8 +346,11 @@
 (define (receive-msg mp sm)
   (cond
     [(string=? (first sm) "ERROR") (make-package MUSICPLAYER-2 CLIENTMSG)]
-    [(string=? (first sm) "SONG") (make-player (convert-to-song sm) (player-history mp)
-                                               (player-feedback mp))]))
+    [(string=? (first sm) "SONG")
+     (make-player (convert-to-song sm) (player-history mp) (player-feedback mp) (player-index mp))]
+    [(string=? (first sm) "METADATA")
+     (make-player sm (player-history mp) (player-feedback mp) (player-index mp))]))
+
 
 
 ; convert-to-song ; SongMsg -> Song
@@ -352,18 +366,74 @@
              (fourth sm)
              (second sm)))
 
+; handle-key: MusicPlayer KeyEvent -> PlayerResult
+; Updates the state of the MusicPlayer after certain KeyEvents occur
+(check-expect (handle-key MUSICPLAYER-7 "up") MUSICPLAYER-8)
+(check-expect (handle-key MUSICPLAYER-7 "down") MUSICPLAYER-9)
+(check-expect (handle-key MUSICPLAYER-7 "\r") (make-package MUSICPLAYER-10 2929))
+(check-expect (handle-key MUSICPLAYER-8 "\r") (make-package MUSICPLAYER-10 8573))
+(check-expect (handle-key MUSICPLAYER-7 "k") MUSICPLAYER-7)
+(check-expect (handle-key MUSICPLAYER-2 "a") MUSICPLAYER-2)
+(check-expect (handle-key MUSICPLAYER-3 "q") MUSICPLAYER-3)
+(define (handle-key mp ke)
+  (cond
+    [(cons? (player-mpstate mp)) (handle-songmenu mp ke)]
+    [(song? (player-mpstate mp)) (handle-space mp ke)]
+    [else mp]))
+
+; handle-songmenu : MusicPlayer KeyEvent -> MusicPlayer
+; allows user to move up/down to choose songs, and enter to request that song from the server,
+; by modifying the index of the musicplayer
+(check-expect (handle-songmenu MUSICPLAYER-7 "up") MUSICPLAYER-8)
+(check-expect (handle-songmenu MUSICPLAYER-7 "down") MUSICPLAYER-9)
+(check-expect (handle-songmenu MUSICPLAYER-7 "\r") (make-package MUSICPLAYER-10 2929))
+(check-expect (handle-songmenu MUSICPLAYER-8 "\r") (make-package MUSICPLAYER-10 8573))
+(check-expect (handle-songmenu MUSICPLAYER-7 "l") MUSICPLAYER-7)
+(define (handle-songmenu mp ke)
+  (cond
+       [(key=? ke "up") (handle-upkey mp)]
+       [(key=? ke "down") (handle-downkey mp)]
+       [(key=? ke "\r") (request-shit mp)]
+       [else mp]))
+
+
+; handle-upkey : MusicPlayer -> MusicPlayer
+; updates the index of the MusicPlayer after the "up" arrow is pressed
+(check-expect (handle-upkey MUSICPLAYER-7) MUSICPLAYER-8)
+(check-expect (handle-upkey MUSICPLAYER-8) MUSICPLAYER-9)
+
+(define (handle-upkey mp)
+  (modulo (add1 (player-index mp)) (length (second (player-mpstate mp)))))
+   
+
+; handle-downkey : MusicPlayer -> Musicplayer
+; updates the index of the MusicPlayer after the "down" arrow is pressed
+(check-expect (handle-downkey MUSICPLAYER-7) MUSICPLAYER-9)
+(check-expect (handle-downkey MUSICPLAYER-9) MUSICPLAYER-8)
+
+(define (handle-downkey mp)
+  (modulo (sub1 (player-index mp)) (length (second (player-mpstate mp)))))
+
+;(define-struct player [mpstate history feedback index])
+; handle-enterkey : MusicPlayer -> PlayerResult
+; sends a request to the server with the specific song id from the song chosen by the user
+; *** delete request-song function because it is useless, add musicplayers to match 
+(check-expect (handle-enterkey MUSICPLAYER-7) (make-package MUSICPLAYER-10 2929))
+(check-expect (handle-enterkey MUSICPLAYER-8) (make-package MUSICPLAYER-10 8573))
+(check-expect (handle-enterkey MUSICPLAYER-9) (make-package MUSICPLAYER-10 9999))
+(define (handle-enterkey mp)
+  (make-package (make-player "requested" (player-history mp) (player-feedback mp) 0)))
+
 ; handle-space : MusicPlayer KeyEvent -> MusicPlayer
 ; plays the received song and awaits the feedback when the user presses the space bar
 (check-expect (handle-space MUSICPLAYER-3 "k") MUSICPLAYER-3)
 (check-expect (handle-space MUSICPLAYER-4 "p") MUSICPLAYER-4)
 (check-expect (handle-space MUSICPLAYER-2 "a") MUSICPLAYER-2)
-
 ; no further check-expects are possible because play-sound calls big-bang 
 
 (define (handle-space mp ke)
   (cond
-    [(and (key=? ke " ") (song? (player-mpstate mp)))
-     (handle-feedback mp)]
+    [(key=? ke " ") (handle-feedback-and-history mp)]
     [else mp]))
 
 ; handle-feedback-and-history : MusicPlayer -> MusicPlayer
@@ -372,7 +442,7 @@
 
 ; no check expects possible because play-sound calls big-bang
 
-(define (handle-feedback mp)
+(define (handle-feedback-and-history mp)
   (make-player #false (history-updater (player-mpstate mp) (player-history mp))
                (play-sound
                 (song-bytestring (player-mpstate mp)))))
