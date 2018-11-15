@@ -24,6 +24,8 @@
 ; play screen with list of songs -> have each song name then next to it, playcount
 ; ADD CLAUSE IN KEY-HANDLER TO NOT RESPOND TO KEYS BEFORE USER HAS SONG OPTIONS
 
+;;; NEW NOTES: UPDATE WRITE HISTORY FUNCTIONS TO HAVE INDEX IN MUSICPLAYER
+
 
 
 (define-struct song [title artist length album bytestring id])
@@ -317,10 +319,7 @@
 
 (define INITIAL-PLAYER (make-player MPSTATE-1 (read-file-if-exists FILEPATH) FEEDBACKSTRING-EMPTY 0))
 
-              
-
-
-
+             
 ;; request-song : MusicPlayer -> PlayerResult 
 ;; requests a song from the server when the player is in its initial state
 ;(check-expect (request-song MUSICPLAYER-1) (make-package MUSICPLAYER-2 CLIENTMSG))
@@ -362,7 +361,7 @@
   (cond
        [(key=? ke "up") (handle-upkey mp)]
        [(key=? ke "down") (handle-downkey mp)]
-       [(key=? ke "\r") (request-shit mp)]
+       [(key=? ke "\r") (handle-enterkey mp)]
        [else mp]))
 
 
@@ -396,18 +395,17 @@
 ; updates the state of the player after receiving a message from the server
 ; if it receives an error, then it makes another request to the server
 ; **** ERROR????
-(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-1) (make-package MUSICPLAYER-2 CLIENTMSG))
-(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-2) (make-package MUSICPLAYER-2 CLIENTMSG))
-(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-3) (make-player SONG-1 HISTORY-0 ""))
+;(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-1) (make-package MUSICPLAYER-2 CLIENTMSG))
+;(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-2) (make-package MUSICPLAYER-2 CLIENTMSG))
+;(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-3) (make-player SONG-1 HISTORY-0 ""))
 
 (define (receive-msg mp sm)
   (cond
-    [(string=? (first sm) "ERROR") (make-package MUSICPLAYER-2 CLIENTMSG)]
+    [(string=? (first sm) "ERROR") (make-package mp (player-id (player-state mp)))]
     [(string=? (first sm) "SONG")
      (make-player (convert-to-song sm) (player-history mp) (player-feedback mp) (player-index mp))]
     [(string=? (first sm) "METADATA")
      (make-player sm (player-history mp) (player-feedback mp) (player-index mp))]))
-
 
 
 ; convert-to-song ; SongMsg -> Song
@@ -526,6 +524,7 @@
   (cond
     [(or (string? (player-mpstate mp)) (boolean? (player-mpstate mp)))
      (place-image (waiting-image mp) 200 150 BACKGROUND)]
+    
     [(song? (player-mpstate mp))
      (place-image (above HISTORY-TEXT (format-history mp)) 200 50
                   (place-image (draw-mpdata mp) 200 200 INSTRUCTIONS))]))
@@ -548,7 +547,7 @@
   (above (text "Waiting..." TEXT-SIZE TEXT-COLOR)
          (text (string-append "Feedback: " (player-feedback mp)) TEXT-SIZE TEXT-COLOR)))
 
-
+; text of songs and histories above empty-scene of the instructions/waiting screens
 ; draw-mpdata: MusicPlayer -> Image
 ; creates an image that shows the feedback from the user, and the upcoming song's
 ; title, artist, album, and history of songs played with # timesplayed for each of them
