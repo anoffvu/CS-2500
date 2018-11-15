@@ -321,50 +321,19 @@
 
 
 
-; request-song : MusicPlayer -> PlayerResult 
-; requests a song from the server when the player is in its initial state
-(check-expect (request-song MUSICPLAYER-1) (make-package MUSICPLAYER-2 CLIENTMSG))
-(check-expect (request-song MUSICPLAYER-2) MUSICPLAYER-2)
-(check-expect (request-song MUSICPLAYER-3) MUSICPLAYER-3)
- 
-(define (request-song mp)
-  (cond
-    [(boolean? (player-mpstate mp))
-     (make-package (make-player "requested" (player-history mp) (player-feedback mp)) CLIENTMSG)]
-    [(string? (player-mpstate mp)) mp]
-    [(song? (player-mpstate mp)) mp]))
+;; request-song : MusicPlayer -> PlayerResult 
+;; requests a song from the server when the player is in its initial state
+;(check-expect (request-song MUSICPLAYER-1) (make-package MUSICPLAYER-2 CLIENTMSG))
+;(check-expect (request-song MUSICPLAYER-2) MUSICPLAYER-2)
+;(check-expect (request-song MUSICPLAYER-3) MUSICPLAYER-3)
+; 
+;(define (request-song mp)
+;  (cond
+;    [(boolean? (player-mpstate mp))
+;     (make-package (make-player "requested" (player-history mp) (player-feedback mp)) CLIENTMSG)]
+;    [(string? (player-mpstate mp)) mp]
+;    [(song? (player-mpstate mp)) mp]))
 
-
-; receive-msg : MusicPlayer ServerMsg -> PlayerResult
-; updates the state of the player after receiving a message from the server
-; if it receives an error, then it makes another request to the server
-; **** ERROR????
-(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-1) (make-package MUSICPLAYER-2 CLIENTMSG))
-(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-2) (make-package MUSICPLAYER-2 CLIENTMSG))
-(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-3) (make-player SONG-1 HISTORY-0 ""))
-
-(define (receive-msg mp sm)
-  (cond
-    [(string=? (first sm) "ERROR") (make-package MUSICPLAYER-2 CLIENTMSG)]
-    [(string=? (first sm) "SONG")
-     (make-player (convert-to-song sm) (player-history mp) (player-feedback mp) (player-index mp))]
-    [(string=? (first sm) "METADATA")
-     (make-player sm (player-history mp) (player-feedback mp) (player-index mp))]))
-
-
-
-; convert-to-song ; SongMsg -> Song
-; extracts metadata and bytestring from a SongMsg and converts this data to a Song struct
-(check-expect (convert-to-song SONGMSG-1) SONG-1)
-(check-expect (convert-to-song SONGMSG-2) SONG-2)
-
-(define (convert-to-song sm)
-  (make-song (first (third sm))
-             (second (third sm))
-             (third (third sm))
-             (fourth (third sm))
-             (fourth sm)
-             (second sm)))
 
 ; handle-key: MusicPlayer KeyEvent -> PlayerResult
 ; Updates the state of the MusicPlayer after certain KeyEvents occur
@@ -414,7 +383,6 @@
 (define (handle-downkey mp)
   (modulo (sub1 (player-index mp)) (length (second (player-mpstate mp)))))
 
-;(define-struct player [mpstate history feedback index])
 ; handle-enterkey : MusicPlayer -> PlayerResult
 ; sends a request to the server with the specific song id from the song chosen by the user
 ; *** delete request-song function because it is useless, add musicplayers to match 
@@ -423,6 +391,37 @@
 (check-expect (handle-enterkey MUSICPLAYER-9) (make-package MUSICPLAYER-10 9999))
 (define (handle-enterkey mp)
   (make-package (make-player "requested" (player-history mp) (player-feedback mp) 0)))
+
+; receive-msg : MusicPlayer ServerMsg -> PlayerResult
+; updates the state of the player after receiving a message from the server
+; if it receives an error, then it makes another request to the server
+; **** ERROR????
+(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-1) (make-package MUSICPLAYER-2 CLIENTMSG))
+(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-2) (make-package MUSICPLAYER-2 CLIENTMSG))
+(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-3) (make-player SONG-1 HISTORY-0 ""))
+
+(define (receive-msg mp sm)
+  (cond
+    [(string=? (first sm) "ERROR") (make-package MUSICPLAYER-2 CLIENTMSG)]
+    [(string=? (first sm) "SONG")
+     (make-player (convert-to-song sm) (player-history mp) (player-feedback mp) (player-index mp))]
+    [(string=? (first sm) "METADATA")
+     (make-player sm (player-history mp) (player-feedback mp) (player-index mp))]))
+
+
+
+; convert-to-song ; SongMsg -> Song
+; extracts metadata and bytestring from a SongMsg and converts this data to a Song struct
+(check-expect (convert-to-song SONGMSG-1) SONG-1)
+(check-expect (convert-to-song SONGMSG-2) SONG-2)
+
+(define (convert-to-song sm)
+  (make-song (first (third sm))
+             (second (third sm))
+             (third (third sm))
+             (fourth (third sm))
+             (fourth sm)
+             (second sm)))
 
 ; handle-space : MusicPlayer KeyEvent -> MusicPlayer
 ; plays the received song and awaits the feedback when the user presses the space bar
