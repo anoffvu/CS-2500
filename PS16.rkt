@@ -106,18 +106,6 @@
     [(string=? fs FEEDBACKSTRING-LIKE) ...]
     [(string=? fs FEEDBACKSTRING-NONE) ...]))
 
- 
-; A ClientMsg is a Nat
-; representing a request for a SongMsg with a specific ID#
-(define CLIENTMSG-1 "2929")
-(define CLIENTMSG-2 "8573")
-
-; A Package is a (make-package MusicPlayer ClientMsg)
-; - and dictacts the next state of the world as well as
-; - the message sent from the client to the server
-(define PACKAGE-1 (make-package MUSICPLAYER-1 CLIENTMSG-1))
-(define PACKAGE-2 (make-package MUSICPLAYER-2 CLIENTMSG-2))
-
 
 ; A Metadata is a (list String String Number String)
 ; Interpretation: the data pertaining to a song
@@ -181,9 +169,6 @@
   (cond
     [(empty? mdm) ...]
     [(cons? mdm) (idmetapair-temp (first (second mdm))) ... (idmetapair-temp (rest (second mdm)))]))
-
-
-
 
 ; A ServerMsg is one of:
 ; - ErrorMsg
@@ -272,16 +257,27 @@
 ; A PlayerResult is one of:
 ; - MusicPlayer
 ; - Package
+
+; A ClientMsg is a Nat
+; representing a request for a SongMsg with a specific ID#
+(define CLIENTMSG-1 "2929")
+(define CLIENTMSG-2 "8573")
+
+; A Package is a (make-package MusicPlayer ClientMsg)
+; - and dictacts the next state of the world as well as
+; - the message sent from the client to the server
+(define PACKAGE-1 (make-package MUSICPLAYER-1 CLIENTMSG-1))
+(define PACKAGE-2 (make-package MUSICPLAYER-2 CLIENTMSG-2))
                     
 ; Exercise 3
 
 (define FILEPATH "history.csv")
                           
 ; main/player : Any -> String
-; world program; world is a Musicplayer
-; runs a music player that plays songs from the server and displays the user
-; feedback from the last song played, the song's title, artist, and album, and a list of
-; songs played with the # of times they have been played
+; world program; World is a Musicplayer
+; runs a music player that allows the user to choose songs to play from the server and displays
+; the user feedback from the last song played, the song's title, artist, and album, and the number
+; of times played next to each song choice
 (define (main/player _)
   (save-history FILEPATH
                 (player-history 
@@ -289,8 +285,7 @@
                    [register "dictionary.ccs.neu.edu"]
                    [port 10001]
                    [to-draw draw-player]
-                   [on-tick request-song]
-                   [on-key handle-space]
+                   [on-key handle-key]
                    [on-receive receive-msg]))))
 
 ; format-csv-data : [List-of String] -> SongHistory
@@ -367,6 +362,7 @@
 
 ; handle-upkey : MusicPlayer -> MusicPlayer
 ; updates the index of the MusicPlayer after the "up" arrow is pressed
+; MAKE-PLAYER.....
 (check-expect (handle-upkey MUSICPLAYER-7) MUSICPLAYER-8)
 (check-expect (handle-upkey MUSICPLAYER-8) MUSICPLAYER-9)
 
@@ -376,6 +372,7 @@
 
 ; handle-downkey : MusicPlayer -> Musicplayer
 ; updates the index of the MusicPlayer after the "down" arrow is pressed
+; MAKE-PLAYER.....
 (check-expect (handle-downkey MUSICPLAYER-7) MUSICPLAYER-9)
 (check-expect (handle-downkey MUSICPLAYER-9) MUSICPLAYER-8)
 
@@ -389,23 +386,24 @@
 (check-expect (handle-enterkey MUSICPLAYER-8) (make-package MUSICPLAYER-10 8573))
 (check-expect (handle-enterkey MUSICPLAYER-9) (make-package MUSICPLAYER-10 9999))
 (define (handle-enterkey mp)
-  (make-package (make-player "requested" (player-history mp) (player-feedback mp) 0)))
+  (make-package (make-player "requested" (player-history mp) (player-feedback mp) (player-index mp))))
 
 ; receive-msg : MusicPlayer ServerMsg -> PlayerResult
 ; updates the state of the player after receiving a message from the server
-; if it receives an error, then it makes another request to the server
-; **** ERROR????
+; if it receives an error, then it makes another request to the server with the same song id
+
 ;(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-1) (make-package MUSICPLAYER-2 CLIENTMSG))
 ;(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-2) (make-package MUSICPLAYER-2 CLIENTMSG))
 ;(check-expect (receive-msg MUSICPLAYER-2 SERVERMSG-3) (make-player SONG-1 HISTORY-0 ""))
 
 (define (receive-msg mp sm)
   (cond
-    [(string=? (first sm) "ERROR") (make-package mp (player-id (player-state mp)))]
-    [(string=? (first sm) "SONG")
-     (make-player (convert-to-song sm) (player-history mp) (player-feedback mp) (player-index mp))]
     [(string=? (first sm) "METADATA")
-     (make-player sm (player-history mp) (player-feedback mp) (player-index mp))]))
+     (make-player sm (player-history mp) (player-feedback mp) (player-index mp))]
+    [(string=? (first sm) "ERROR") (make-package mp (song-id (player-mpstate mp)))]
+    [(string=? (first sm) "SONG")
+     (make-player (convert-to-song sm) (player-history mp) (player-feedback mp) (player-index mp))]))
+   
 
 
 ; convert-to-song ; SongMsg -> Song
