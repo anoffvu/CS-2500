@@ -43,14 +43,44 @@
    (make-person "Grace" "red" (list "Bob" "Frank"))
    (make-person "Heidi" "blue" (list "Alice" "Bob" "Carol" "Dan" "Eric" "Grace"))))
 
+(define UPDATED-NETWORK
+  (list
+   (make-person "Alice" "red" (list "Carol" "Heidi")) ; unchanged
+   (make-person "Bob" "blue" (list "Carol" "Dan")) ; unchanged
+   (make-person "Carol" "red" (list)) ; unchanged
+   (make-person "Dan" "red" (list "Carol" "Eric" "Frank" "Grace")) ; changed to red
+   (make-person "Eric" "red" (list "Alice" "Bob" "Carol" "Dan" "Frank" "Grace")) ; unchanged
+   (make-person "Frank" "red" (list "Alice" "Bob" "Carol" "Dan" "Grace")) ; changed to red
+   (make-person "Grace" "red" (list "Bob" "Frank")) ; changed to blue
+   (make-person "Heidi" "red" (list "Alice" "Bob" "Carol" "Dan" "Eric" "Grace")))) ; changed to red
+
+
 ; Exercise 1
 
 ; update-network : Network -> Network
 ; updates every individual's belief to become the belief the majority of their friends have
 ; if there is a tie, then the belief is unchanged
+(check-expect (update-network NETWORK) UPDATED-NETWORK)
+(define (update-network n)
+  (local [; change-belief : Person -> Person
+          ; changes the belief of a person based on their friends beliefs
+          (define (change-belief p))]
+    (map change-belief n)))
+; make new network given the old one
+
+;; in-network? : Network String -> Boolean
+;; Is there a person with the given name in the given Network?
+(define (in-network? n name)
+  (local [;; Person -> Boolean
+          ;; Does this person have the given name?
+          (define (name-match? p)
+            (string=? (person-name p) name))]
+    (ormap name-match? n)))
+
 
 ; Exercise 2
 
 ; can-reach? : String String Network -> Boolean
 ; takes the names of two people and a network, asks if the first person can reach the second
+; basically connected?
 ;;;;;NOTE: Anyone can reach themselves, and anyone can reach another person through their friends if that friend has the same belief as them.
