@@ -6,10 +6,29 @@
 ; A Person is a (make-person String Belief [List-of String])
 (define-struct person [name belief friends])
 ; and represents their name, their belief, and the name of their friends
+; Examples:
+(define ALICE (make-person "Alice" "red" (list "Carol" "Heidi")))
+(define BOB (make-person "Bob" "blue" (list "Carol" "Dan")))
+(define CAROL (make-person "Carol" "red" (list)))
+(define DAN (make-person "Dan" "blue" (list "Carol" "Eric" "Frank" "Grace")))
+(define ERIC (make-person "Eric" "red" (list "Alice" "Bob" "Carol" "Dan" "Frank" "Grace")))
+(define FRANK (make-person "Frank" "blue" (list "Alice" "Bob" "Carol" "Dan" "Grace")))
+(define GRACE (make-person "Grace" "red" (list "Bob" "Frank")))
+(define HEIDI (make-person "Heidi" "blue" (list "Alice" "Bob" "Carol" "Dan" "Eric" "Grace")))
+; Template:
+#;
+(define (person-temp p)
+  ... (person-name p) ... (belief-temp (person-belief p)) ... (person-friends p))
  
 ; A Belief is one of:
 ; - "blue"
 ; - "red"
+; Template:
+#;
+(define (belief-temp b)
+  (cond
+    [(string=? b "blue") ...]
+    [(string=? b "red") ...]))
  
 (define NETWORK-1
   (list
@@ -39,15 +58,13 @@
 (check-expect (update-network NETWORK-1) NETWORK-2)
 ; maybe more CEs?
 
-; I assumed that there can only be unique names, if there two different people were named
-; the same thing, the definition of a person wouldn't work the way it was intended to.
-; This way, we can store a list of all reds and check if a person is a "red" by member?
 
 (define (update-network network)
   (local [(define INIT-NETWORK network)
           ; grab-red-names : Network -> [List-of String]
           ; grabs all the red names from a network
-          ; CE NEEDED
+          ; Given NETWORK-1, return (list "Alice" "Carol" "Eric" "Grace")
+          ; Given NETWORK-2, return (list "Alice" "Carol" "Dan" "Eric" "Frank" "Heidi")
           (define (grab-red-names network)
             (local [(define (red? person)
                       (string=? (person-belief person) "red"))]
@@ -56,7 +73,8 @@
           (define INIT-RED-NAMES (grab-red-names network))
           ; grab-blue-names : Network -> [List-of String]
           ; grabs all the blue names from a network
-          ; CE NEEDED
+          ; Given NETWORK-1, return (list "Bob" "Dan" "Frank" "Heidi")
+          ; Given NETWORK-2, return (list "Bob" "Grace")
           (define (grab-blue-names network)
             (local [(define (blue? person)
                       (string=? (person-belief person) "blue"))]
@@ -66,7 +84,9 @@
           
           ; belief-of-friends : Person Belief -> [List-of String]
           ; creates a list of all the friends with the given belief
-          ; CE NEEDED
+          ; Given GRACE and "red", return '()
+          ; Given DAN and "red", return (list "Carol" "Eric" "Grace")
+          ; Given BOB and "blue", return (list "Dan")
           (define (belief-of-friends p belief)
             (local [(define (member-of-blues? name)
                       (member? name INIT-BLUE-NAMES))
@@ -77,7 +97,9 @@
                   (filter member-of-blues? (person-friends p)))))
           ; person-update : Person -> Person
           ; updates a person's belief based on his or her friends' beliefs
-          ; CE NEEDED
+          ; Given ALICE, return ALICE
+          ; Given DAN, return (make-person "Dan" "red" (list "Carol" "Eric" "Frank" "Grace"))
+          ; Given GRACE, return (make-person "Grace" "red" (list "Bob" "Frank"))
           (define (person-update p)
             (cond
               [(> (length (belief-of-friends p "red")) (length (belief-of-friends p "blue")))
