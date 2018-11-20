@@ -114,28 +114,36 @@
 
 (define NETWORK-10
   (list
-   (make-person "Alice" "red" (list "Carol" "Heidi"))
-   (make-person "Bob" "red" (list "Carol" "Dan"))
-   (make-person "Carol" "red" (list))
-   (make-person "Dan" "red" (list "Carol" "Eric" "Frank" "Grace"))
-   (make-person "Eric" "red" (list "Alice" "Bob" "Carol" "Dan" "Frank" "Grace"))
-   (make-person "Frank" "red" (list "Alice" "Bob" "Carol" "Dan" "Grace"))
-   (make-person "Grace" "red" (list "Bob" "Frank"))
-   (make-person "Heidi" "red" (list "Alice" "Bob" "Carol" "Dan" "Eric" "Grace"))))
+   (make-person "Alice" "red" (list "Bob" "Carol"))
+   (make-person "Bob" "red" (list))
+   (make-person "Carol" "red" (list "Dan"))
+   (make-person "Dan" "red" (list "Eric" "Frank" "Grace"))
+   (make-person "Eric" "red" (list "Heidi"))
+   (make-person "Frank" "red" (list "Heidi" "Isidore"))
+   (make-person "Grace" "red" (list "Isidore"))
+   (make-person "Heidi" "red" (list))
+   (make-person "Isidore" "red" (list))))
 
 (define NETWORK-11
   (list
-   (make-person "Alice" "red" (list "Carol" "Heidi"))
-   (make-person "Bob" "blue" (list "Carol" "Dan"))
+   (make-person "Alice" "red" (list "Bob" "Carol"))
+   (make-person "Bob" "blue" (list "Isidore"))
    (make-person "Carol" "red" (list))
-   (make-person "Dan" "red" (list "Carol" "Eric" "Frank" "Grace"))
-   (make-person "Eric" "red" (list "Alice" "Bob" "Carol" "Dan" "Frank" "Grace"))
-   (make-person "Frank" "red" (list "Alice" "Bob" "Carol" "Dan" "Grace"))
-   (make-person "Grace" "blue" (list "Bob" "Frank"))
-   (make-person "Heidi" "red" (list "Alice" "Bob" "Carol" "Dan" "Eric" "Grace"))))
+   (make-person "Isidore" "blue" (list))))
+
+(define NETWORK-12
+  (list
+   (make-person "Alice" "red" (list "Bob" "Carol"))
+   (make-person "Bob" "red" (list "Isidore"))
+   (make-person "Carol" "red" (list))
+   (make-person "Isidore" "blue" (list))))
+
 ; can-reach? : Network String String -> Boolean
 ; determines if the first person can reach the second person
-;; CE NEEDED
+
+(check-expect (can-reach? NETWORK-11 "Alice" "Isidore") #false)
+(check-expect (can-reach? NETWORK-12 "Alice" "Isidore") #true)
+
 (define (can-reach? nw p1 p2)
   (local [; grabs the friends of the first person
           (define BEGINNING-FRIENDS (get-friends nw p1))
@@ -176,6 +184,3 @@
   (local [(define (can-reach-wrapper start-friend)
             (can-reach? nw start-friend p2))]
     (ormap can-reach-wrapper friends)))
-  
-  
-
