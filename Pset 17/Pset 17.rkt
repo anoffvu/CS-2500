@@ -176,6 +176,7 @@
 ; belief-grabber : Network String -> Belief
 ; gets the belief of a person given their name and network
 (check-expect (belief-grabber NETWORK-10 "Alice") "red")
+(check-expect (belief-grabber NETWORK-10b "Dan") "blue")
 (check-expect (belief-grabber NETWORK-10b "Bob") "red")
 (check-expect (belief-grabber NETWORK-11 "Isidore") "blue")
 (check-expect (belief-grabber NETWORK-12 "Carol") "red")
