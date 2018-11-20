@@ -124,6 +124,18 @@
    (make-person "Heidi" "red" (list))
    (make-person "Isidore" "red" (list))))
 
+(define NETWORK-10b
+  (list
+   (make-person "Alice" "red" (list "Bob" "Carol"))
+   (make-person "Bob" "red" (list))
+   (make-person "Carol" "red" (list "Dan"))
+   (make-person "Dan" "blue" (list "Eric" "Frank" "Grace"))
+   (make-person "Eric" "red" (list "Heidi"))
+   (make-person "Frank" "red" (list "Heidi" "Isidore"))
+   (make-person "Grace" "red" (list "Isidore"))
+   (make-person "Heidi" "red" (list))
+   (make-person "Isidore" "red" (list))))
+
 (define NETWORK-11
   (list
    (make-person "Alice" "red" (list "Bob" "Carol"))
@@ -141,6 +153,9 @@
 ; can-reach? : Network String String -> Boolean
 ; determines if the first person can reach the second person
 
+(check-expect (can-reach? NETWORK-10 "Bob" "Carol") #false)
+(check-expect (can-reach? NETWORK-10 "Alice" "Isidore") #true)
+(check-expect (can-reach? NETWORK-10b "Alice" "Isidore") #false)
 (check-expect (can-reach? NETWORK-11 "Alice" "Isidore") #false)
 (check-expect (can-reach? NETWORK-12 "Alice" "Isidore") #true)
 
