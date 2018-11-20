@@ -54,10 +54,7 @@
 
 ; update-network : Network -> Network
 ; updates a given each person in a network
-
 (check-expect (update-network NETWORK-1) NETWORK-2)
-; maybe more CEs?
-
 
 (define (update-network network)
   (local [(define INIT-NETWORK network)
