@@ -150,6 +150,8 @@
    (make-person "Carol" "red" (list))
    (make-person "Isidore" "blue" (list))))
 
+
+
 ; can-reach? : Network String String -> Boolean
 ; determines if the first person can reach the second person
 (check-expect (can-reach? NETWORK-10 "Bob" "Carol") #false)
@@ -199,9 +201,18 @@
                     (person-friends (first nw))
                     (get-friends (rest nw) p))]))
 
+
 ; connected-thru-friends? : Network [List-of String] String -> Boolean
 ; checks to see if there is a connection between the friends and the end person (p2)
-;; CE NEEDED
+
+(check-expect (connected-thru-friends? NETWORK-10 (list "Bob" "Carol") "Isidore") #true)
+(check-expect (connected-thru-friends? NETWORK-10b (list "Bob" "Carol") "Isidore") #false)
+(check-expect (connected-thru-friends? NETWORK-11 (list "Bob" "Carol") "Isidore") #true)
+(check-expect (connected-thru-friends? NETWORK-12 (list "Bob" "Carol") "Isidore") #true)
+(check-expect (connected-thru-friends? NETWORK-11 (list) "Isidore") #false)
+(check-expect (connected-thru-friends? NETWORK-10 (list) "Isidore") #false)
+
+
 (define (connected-thru-friends? nw friends p2)
   (local [(define (can-reach-wrapper start-friend)
             (can-reach? nw start-friend p2))]
