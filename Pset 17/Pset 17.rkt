@@ -52,9 +52,46 @@
    (make-person "Grace" "blue" (list "Bob" "Frank"))
    (make-person "Heidi" "red" (list "Alice" "Bob" "Carol" "Dan" "Eric" "Grace"))))
 
+(define NETWORK-3
+  (list
+   (make-person "Alice" "red" (list "Carol" "Heidi"))
+   (make-person "Bob" "red" (list "Carol" "Dan"))
+   (make-person "Carol" "red" (list))
+   (make-person "Dan" "red" (list "Carol" "Eric" "Frank" "Grace"))
+   (make-person "Eric" "red" (list "Alice" "Bob" "Carol" "Dan" "Frank" "Grace"))
+   (make-person "Frank" "red" (list "Alice" "Bob" "Carol" "Dan" "Grace"))
+   (make-person "Grace" "red" (list "Bob" "Frank"))
+   (make-person "Heidi" "red" (list "Alice" "Bob" "Carol" "Dan" "Eric" "Grace"))))
+
+(define NETWORK-4
+  (list
+   (make-person "Alice" "blue" (list "Carol" "Heidi"))
+   (make-person "Bob" "blue" (list "Carol" "Dan"))
+   (make-person "Carol" "blue" (list))
+   (make-person "Dan" "blue" (list "Carol" "Eric" "Frank" "Grace"))
+   (make-person "Eric" "red" (list "Alice" "Bob" "Carol" "Dan" "Frank" "Grace"))
+   (make-person "Frank" "red" (list "Alice" "Bob" "Carol" "Dan" "Grace"))
+   (make-person "Grace" "red" (list "Bob" "Frank"))
+   (make-person "Heidi" "red" (list "Alice" "Bob" "Carol" "Dan" "Eric" "Grace"))))
+
+(define NETWORK-5
+  (list
+   (make-person "Alice" "blue" (list "Carol" "Heidi"))
+   (make-person "Bob" "blue" (list "Carol" "Dan"))
+   (make-person "Carol" "blue" (list))
+   (make-person "Dan" "red" (list "Carol" "Eric" "Frank" "Grace"))
+   (make-person "Eric" "blue" (list "Alice" "Bob" "Carol" "Dan" "Frank" "Grace"))
+   (make-person "Frank" "blue" (list "Alice" "Bob" "Carol" "Dan" "Grace"))
+   (make-person "Grace" "red" (list "Bob" "Frank"))
+   (make-person "Heidi" "blue" (list "Alice" "Bob" "Carol" "Dan" "Eric" "Grace"))))
+
+
 ; update-network : Network -> Network
 ; updates a given each person in a network
+
 (check-expect (update-network NETWORK-1) NETWORK-2)
+(check-expect (update-network NETWORK-3) NETWORK-3)
+(check-expect (update-network NETWORK-4) NETWORK-5)
 
 (define (update-network network)
   (local [(define INIT-NETWORK network)
