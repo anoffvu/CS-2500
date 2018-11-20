@@ -152,7 +152,6 @@
 
 ; can-reach? : Network String String -> Boolean
 ; determines if the first person can reach the second person
-
 (check-expect (can-reach? NETWORK-10 "Bob" "Carol") #false)
 (check-expect (can-reach? NETWORK-10 "Alice" "Isidore") #true)
 (check-expect (can-reach? NETWORK-10b "Alice" "Isidore") #false)
@@ -174,7 +173,11 @@
         (connected-thru-friends? nw SAME-BELIEF-BEGINNING-FRIENDS p2))))
 ; belief-grabber : Network String -> Belief
 ; gets the belief of a person given their name and network
-;; CE NEEDED
+(check-expect (belief-grabber NETWORK-10 "Alice") "red")
+(check-expect (belief-grabber NETWORK-10b "Bob") "red")
+(check-expect (belief-grabber NETWORK-11 "Isidore") "blue")
+(check-expect (belief-grabber NETWORK-12 "Carol") "red")
+
 (define (belief-grabber nw p)
   (cond
     [(empty? nw) '()]
@@ -184,7 +187,11 @@
 
 ; get-friends : Network String -> [List-of String]
 ; gets the list of friends of a person given their name and network
-;; CE NEEDED
+(check-expect (get-friends NETWORK-10 "Alice") (list "Bob" "Carol"))
+(check-expect (get-friends NETWORK-10b "Bob") (list ))
+(check-expect (get-friends NETWORK-10b "Dan") (list "Eric" "Frank" "Grace"))
+(check-expect (get-friends NETWORK-11 "Alice") (list "Bob" "Carol"))
+(check-expect (get-friends NETWORK-12 "Isidore") (list ))
 (define (get-friends nw p)
   (cond
     [(empty? nw) '()]
