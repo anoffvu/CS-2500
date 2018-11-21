@@ -39,4 +39,15 @@
 ; Given a string and a delimiter (second string
 ; which is used to divide the string) splits the given string by that delimiter
 
+(define (string-split longstring delimiter)
+  (local [(define DELIMITER-LENGTH (length delimiter))
+          (define EXPLODED-DELIMITER (explode delmiter))]
+    (cond
+      [(
+    
+  
+
+
+
+
   
