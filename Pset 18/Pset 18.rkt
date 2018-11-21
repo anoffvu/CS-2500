@@ -21,9 +21,9 @@
 (define (nat->string nni)
   (local [(define LAST-DIGIT (digit->string (modulo nni 10)))
           (define ALL-OTHER-DIGITS (grab-all-other-digits nni))]
-  (cond
-    [(<= 0 nni 9) (digit->string nni)]
-    [(> nni 9) (string-append ALL-OTHER-DIGITS LAST-DIGIT)])))
+    (cond
+      [(<= 0 nni 9) (digit->string nni)]
+      [(> nni 9) (string-append ALL-OTHER-DIGITS LAST-DIGIT)])))
 
 ; grab-all-other-digits : NonNegative
 ; grabs all but the last digits in a number
@@ -35,19 +35,35 @@
 
 ;ex 2
 
+; Exercise 2 Design the function string-split,
+; which given a string to split and a non-empty delimiter splits the string by that delimiter.
+; For example, (string-split "hello%%bob%%%i%%%%am%%jack" "%%")
+; should return (list "hello" "bob" "%i" "" "am" "jack").
+
 ; string-split : String String -> [List-of String]
 ; Given a string and a delimiter (second string
 ; which is used to divide the string) splits the given string by that delimiter
+; Termination: each time we iterate, we trim down the intial string until we reach the trivial base
+; case of the string not containing any instances of the delimiter, in which case we return the rest
+; of the string
 
 (define (string-split longstring delimiter)
   (local [(define DELIMITER-LENGTH (length delimiter))
           (define EXPLODED-DELIMITER (explode delmiter))]
     (cond
-      [(
+      [(not (string-contains? delimiter longstring)) (list longstring)]
+      [(string-contains? delimiter longstring)
+       (cons (first (cut-first-segment longstring delimiter))
+             (string-split (second (cut-first-segment longstring delimiter))))])))
+
+; cut-first-segment : String String -> [List-of
+
+; dont wanna do list of string because consing then will give a fuck ton of list
+; might do individual helpers to just grab the first segment and then grab the rest of the segment
+
     
   
 
 
 
 
-  
