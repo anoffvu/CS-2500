@@ -5,12 +5,14 @@
 
 ; digit->string : [0, 9] -> String
 ; String representation of this digit
+
 (check-expect (build-list 10 digit->string)
               (list "0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
 (check-expect (digit->string 0) "0")
 
 (define (digit->string d)
   (string (integer->char (+ 48 d))))
+
 
 ; nat->string : NonNegativeInteger -> String
 ; given a non-negative integer, returns its string form
@@ -30,8 +32,10 @@
       [(<= 0 nni 9) (digit->string nni)]
       [(> nni 9) (string-append ALL-OTHER-DIGITS LAST-DIGIT)])))
 
+
 ; grab-all-other-digits : NonNegative
 ; grabs all but the last digit in a number and turns it into a string
+
 (check-expect (grab-all-other-digits 123456789) "12345678")
 (check-expect (grab-all-other-digits 12345678) "1234567")
 (check-expect (grab-all-other-digits 1) "")
@@ -41,6 +45,7 @@
   (cond
     [(<= 0 nni 9) ""]
     [(> nni 9) (nat->string (floor (/ nni 10)))]))
+
 
 ;ex 2
 
@@ -67,6 +72,7 @@
    (cons (first (cut-first-segment longstring delimiter 0))
          (string-split (second (cut-first-segment longstring delimiter 0)) delimiter))))
 
+
 ; cut-first-segment : String String NonNegativeInteger -> [List-of String]
 ; Cuts the string into 2 parts: the string before the delimiter and the string after the delimiter
 ; the string must have a delimiter in it as that is the only case where we call this function
@@ -79,6 +85,7 @@
 
 (define (cut-first-segment longstring delimiter look-index)
   (local [(define DELIMITER-LENGTH (string-length delimiter))
+          
           ; grab-segment-at-index : NonNegativeInteger -> String
           ; grabs a string from the longstring that is the same size as the delimiter
           ; at the given index
