@@ -61,11 +61,11 @@
 (check-expect (string-split "111111114" "4") (list "11111111" ""))
 
 (define (string-split longstring delimiter)
-    (if
-      (not (string-contains? delimiter longstring))
-      (list longstring)
-      (cons (first (cut-first-segment longstring delimiter 0))
-            (string-split (second (cut-first-segment longstring delimiter 0)) delimiter))))
+  (if
+   (not (string-contains? delimiter longstring))
+   (list longstring)
+   (cons (first (cut-first-segment longstring delimiter 0))
+         (string-split (second (cut-first-segment longstring delimiter 0)) delimiter))))
 
 ; cut-first-segment : String String NonNegativeInteger -> [List-of String]
 ; Cuts the string into 2 parts: the string before the delimiter and the string after the delimiter
