@@ -1,7 +1,7 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
 #reader(lib "htdp-intermediate-reader.ss" "lang")((modname |Pset 19|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
-;ex 1
+ime ;ex 1
 
 ; relative->absolute : [List-of Number] -> [List-of Number]
 ; converts relative distances between points to absolute values
@@ -12,7 +12,11 @@
 (check-expect (relative->absolute (list 0 10 30 0 40 10)) (list 0 10 40 40 80 90))
 
 (define (relative->absolute lon)
-  (local [(define (relative->absolute/a lon sum-so-far)
+  (local [; relative->absolute/a [List-of Number] Number -> [List-of Number]
+          ; calculates the absolute distance between points and keeps track of total distance traveled
+          ; so far
+          ; Accumulator: the sum so far/ the total absolute distance traveled so far in the list
+          (define (relative->absolute/a lon sum-so-far)
             (cond [(empty? lon) '()]
                   [(cons? lon) (cons (+ (first lon) sum-so-far)
                                      (relative->absolute/a (rest lon) (+ (first lon) sum-so-far)))]))]
@@ -20,9 +24,6 @@
 
 
 ;ex 2
-
-; stops when someone buys with 10 but no 5 dollar bills left
-; credit card and exact $5 always goes thru
 
 ; A Payment is one of:
 ; - 5
