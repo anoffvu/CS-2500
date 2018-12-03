@@ -1,7 +1,7 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
 #reader(lib "htdp-intermediate-reader.ss" "lang")((modname |Pset 19|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
-ime ;ex 1
+;ex 1
 
 ; relative->absolute : [List-of Number] -> [List-of Number]
 ; converts relative distances between points to absolute values
@@ -60,16 +60,22 @@ ime ;ex 1
 (check-expect (ticket-calc 2 LOP-2) 9)
 
 (define (ticket-calc n lop)
-  (local [; ticket-calc/a : Number [List-of Payment] Number -> NUmber
+  (local [; ticket-calc/a : Number [List-of Payment] Number -> Number
           ; calculates the number of tickets able to be sold
           ; Accumulator: keeps track of the number of tickets sold so far
           (define (ticket-calc/a n lop tickets-sold)
-            (cond [(empty? lop) tickets-sold]
-                  [(cons? lop) (if (or (string? (first lop)) (= (first lop) 5))
-                                   (ticket-calc/a n (rest lop) (add1 tickets-sold))
-                                   (if (= n 0)
-                                       tickets-sold
-                                       (ticket-calc/a (sub1 n) (rest lop) (add1 tickets-sold))))]))]
+            (local [; change-needed: Number [List-of Payment] Number -> Number
+                    ; calculates the number of tickets sold if a payment requires change
+                    ; given 0 (list 10 5) 20, returns 20
+                    ; given 1 (list 10 5 10) 0, returns 2
+                    (define (change-needed n lop t-sold)
+                      (if (= n 0)
+                          t-sold
+                          (ticket-calc/a (sub1 n) (rest lop) (add1 t-sold))))]
+              (cond [(empty? lop) tickets-sold]
+                    [(cons? lop) (if (or (string? (first lop)) (= (first lop) 5))
+                                     (ticket-calc/a n (rest lop) (add1 tickets-sold))
+                                     (change-needed n lop tickets-sold))])))]
     (ticket-calc/a n lop 0)))
 
 
