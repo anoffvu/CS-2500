@@ -1,0 +1,13 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname |Pset 19|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+; relative->absolute : [List-of Number] -> [List-of Number]
+; converts relative distances between points to absolute values
+
+(check-expect (relative->absolute (list 0 0 0)) (list 0 0 0))
+(check-expect (relative->absolute (list 10 30 0 40 10)) (list 10 40 40 80 90))
+
+(define (relative->absolute lon)
+  (local [(define (relative->absolute/a lon base)
+            )]
+    (relative->absolute/a lon base)))
