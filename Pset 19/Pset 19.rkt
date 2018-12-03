@@ -1,7 +1,7 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
 #reader(lib "htdp-intermediate-reader.ss" "lang")((modname |Pset 19|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
-ime ;ex 1
+;ex 1
 
 ; relative->absolute : [List-of Number] -> [List-of Number]
 ; converts relative distances between points to absolute values
@@ -9,13 +9,14 @@ ime ;ex 1
 (check-expect (relative->absolute (list)) (list))
 (check-expect (relative->absolute (list 0 0 0)) (list 0 0 0))
 (check-expect (relative->absolute (list 20)) (list 20))
+(check-expect (relative->absolute (list 10 50 20)) (list 10 60 80))
 (check-expect (relative->absolute (list 0 10 30 0 40 10)) (list 0 10 40 40 80 90))
 
 (define (relative->absolute lon)
   (local [; relative->absolute/a [List-of Number] Number -> [List-of Number]
           ; calculates the absolute distance between points and keeps track of total distance traveled
           ; so far
-          ; Accumulator: the sum so far/ the total absolute distance traveled so far in the list
+          ; Accumulator: The total absolute distance traveled so far in the list (the sum so far)
           (define (relative->absolute/a lon sum-so-far)
             (cond [(empty? lon) '()]
                   [(cons? lon) (cons (+ (first lon) sum-so-far)
@@ -225,7 +226,7 @@ ime ;ex 1
 (check-expect (can-reach? NETWORK-CYCLES-2 "Alice" "Chris") #false)
 
 (define (can-reach? nw p1 p2)
-  (local [; can-reach?/a Network String String [List-of String] -> Boolean
+  (local [; can-reach?/a : Network String String [List-of String] -> Boolean
           ; determines if one person can reach another person in a network
           ; Accumulator: every iteration keeps a history of nodes visited
           (define (can-reach?/a nw p1 p2 visited)
@@ -258,7 +259,7 @@ ime ;ex 1
                     ; given NETWORK-1 (list "Carol" "Heidi") "Bob", returns #true
                     ; given NETWORK-1 (list "Carol" "Heidi") "Frank", returns #false
                     ; given NETWORK-11 (list "Alice") "Isidore", returns #false
-                    ; Assume for these check exepct that it has visited Heidi:
+                    ; Assume for these check expects that it has visited Heidi:
                     ; given NETWORK-1 (list "Carol" "Heidi") "Bob", returns #false
                     ; given NETWORK-1 (list "Carol" "Heidi") "Grace", returns #false
                     (define (connected-thru-friends? nw friends p2 visited)
